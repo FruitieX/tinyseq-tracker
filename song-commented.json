@@ -1,0 +1,37 @@
+// instruments
+[
+  [
+    // waveform function
+    "Math.random()",
+
+    // notes
+    // space = empty (do nothing)
+    // ! = off note
+    // everything else from # up (0x23 in ascii) = note
+    "# ! &   +!  &   ",
+
+    // seconds per row (60 / BPM / LPB)
+    0.25,
+
+    // rows per pattern
+    8,
+
+    // transpose
+    0,
+
+    // volume
+    0.1,
+
+    // attack
+    0.05,
+
+    // decay
+    0.1,
+
+    // sustain
+    0,
+
+    // release
+    0
+  ]
+]

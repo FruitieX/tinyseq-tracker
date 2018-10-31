@@ -2,22 +2,37 @@ import React from 'react';
 import styled from 'styled-components';
 
 import song from '../../song.json';
-import { Instrument, parseSong, TSSong } from '../types/instrument';
+import { Instrument, parseSong, TSSong, Song } from '../types/instrument';
 import { Track } from './Track';
 
 const NoteEditor = styled.div`
   display: flex;
   flex-direction: row;
+  user-select: none;
 `;
 
-const renderTrack = (instrument: Instrument, index: number) => {
-  return <Track key={index} index={index} instrument={instrument} />;
-};
+interface EditorProps {}
 
-export default class Editor extends React.Component {
+interface EditorState {
+  selectedLine: number;
+  song: Song;
+}
+
+export default class Editor extends React.Component<EditorProps, EditorState> {
+  constructor(props: EditorProps) {
+    super(props);
+
+    this.state = {
+      selectedLine: 0,
+      song: parseSong(song as TSSong),
+    };
+  }
+
+  renderTrack = (instrument: Instrument, index: number) => {
+    return <Track key={index} index={index} instrument={instrument} />;
+  };
+
   render() {
-    return (
-      <NoteEditor>{parseSong(song as TSSong).map(renderTrack)}</NoteEditor>
-    );
+    return <NoteEditor>{this.state.song.map(this.renderTrack)}</NoteEditor>;
   }
 }

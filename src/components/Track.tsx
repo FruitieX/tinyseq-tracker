@@ -13,7 +13,7 @@ interface Props {
 }
 
 const NoteContainer = styled.div`
-  font-family: monospace;
+  font-size: 10px;
 `;
 
 const getNoteName = (noteCode: number): string => {

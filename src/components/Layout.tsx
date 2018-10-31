@@ -9,7 +9,9 @@ const GridContainer = styled.main`
   place-content: center;
   height: 100vh;
 
-  font-family: sans-serif;
+  font-family: 'Roboto Mono', monospace;
+  background: #444;
+  color: white;
 `;
 
 interface Props {
@@ -39,7 +41,9 @@ const Layout = ({ children }: Props) => (
               content: 'width=device-width, initial-scale=1',
             },
           ]}
-        />
+        >
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet"></link>
+        </Helmet>
         <GridContainer>{children}</GridContainer>
       </>
     )}

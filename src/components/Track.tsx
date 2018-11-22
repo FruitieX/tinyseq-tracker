@@ -12,6 +12,7 @@ interface Props {
   instrument: Instrument;
   selected: boolean;
   selectedRow: number;
+  onClickNote: (trackIndex: number, rowIndex: number) => void;
 }
 
 interface INoteContainerProps {
@@ -77,11 +78,16 @@ const notesStringToArr = (notes: string): string[] => {
 };
 
 export class Track extends React.Component<Props> {
+  handleClick = (rowIndex: number) => () => {
+    this.props.onClickNote(this.props.index, rowIndex);
+  }
+
   renderRow = (note: string, index: number) => {
     return (
       <NoteContainer
         key={index}
         selected={this.props.selected && this.props.selectedRow === index}
+        onClick={this.handleClick(index)}
       >
         {note}
       </NoteContainer>

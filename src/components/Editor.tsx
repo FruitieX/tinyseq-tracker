@@ -96,6 +96,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     );
   };
 
+  handleNoteClick = (trackIndex: number, rowIndex: number) => {
+    this.setState({
+      selectedTrack: trackIndex,
+      selectedRow: rowIndex,
+    });
+  };
+
   componentDidMount() {
     this.props.loadSong(parseSong(song as TSSong));
     document.addEventListener('keydown', this.handleKeyDown);
@@ -112,6 +119,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         index={index}
         instrument={instrument}
         selected={this.state.selectedTrack === index}
+        onClickNote={this.handleNoteClick}
         selectedRow={this.state.selectedRow}
       />
     );

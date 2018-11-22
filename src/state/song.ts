@@ -2,6 +2,7 @@ import { createStandardAction, ActionType, getType } from 'typesafe-actions';
 import { Reducer } from 'redux';
 import { DeepReadonly } from 'utility-types';
 import { Song } from '../types/instrument';
+import produce from 'immer';
 
 export const setSong = createStandardAction('song/SET_SONG')<Song>();
 
@@ -19,11 +20,11 @@ const initialState = {
 export const songReducer: Reducer<SongState, SongActions> = (
   state = initialState,
   action,
-) => {
-  switch (action.type) {
-    case getType(setSong):
-      return { ...state, loaded: action.payload };
-  }
-
-  return state;
-};
+) =>
+  produce(state, draft => {
+    switch (action.type) {
+      case getType(setSong):
+        draft.loaded = action.payload;
+        break;
+    }
+  });

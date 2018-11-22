@@ -4,9 +4,18 @@ import { DeepReadonly } from 'utility-types';
 import { Song } from '../types/instrument';
 import produce from 'immer';
 
-export const setSong = createStandardAction('song/SET_SONG')<Song>();
+const strReplace = (str: string, index: number, character: string) => str.slice(0, index) + character + str.slice(index + 1);
 
-const actions = { setSong };
+export interface EditSong {
+  trackIndex: number;
+  rowIndex: number;
+  note: string;
+};
+
+export const setSong = createStandardAction('song/SET_SONG')<Song>();
+export const editSong = createStandardAction('song/EDIT_SONG',)<EditSong>();
+
+const actions = { setSong, editSong };
 export type SongActions = ActionType<typeof actions>;
 
 export type SongState = DeepReadonly<{
@@ -25,6 +34,9 @@ export const songReducer: Reducer<SongState, SongActions> = (
     switch (action.type) {
       case getType(setSong):
         draft.loaded = action.payload;
+        break;
+      case getType(editSong):
+        draft.loaded[action.payload.trackIndex].notes = strReplace(draft.loaded[action.payload.trackIndex].notes, action.payload.rowIndex, action.payload.note);
         break;
     }
   });

@@ -8,7 +8,7 @@ import SoundFactory from './SoundFactory';
 
 import { connect } from 'react-redux';
 import { RootState } from '../state/rootReducer';
-import { setSong } from '../state/song';
+import { setSong, editSong, EditSong } from '../state/song';
 import { Dispatch } from 'redux';
 import { DeepReadonly } from 'utility-types';
 import { mod } from '../utils/modulo';
@@ -33,6 +33,25 @@ const TrackerWrapper = styled.div`
     'panel footer right-bottom';
 `;
 
+interface KeyCode2Number{
+  [key: string]: number;
+};
+
+const keyboard2noteMapping:KeyCode2Number = {
+  KeyA: 0,
+  KeyW: 1,
+  KeyS: 2,
+  KeyE: 3,
+  KeyD: 4,
+  KeyF: 5,
+  KeyT: 6,
+  KeyG: 7,
+  KeyY: 8,
+  KeyH: 9,
+  KeyU: 10,
+  KeyJ: 11,
+};
+
 const PatternWrapper = styled.div`
   grid-area: panel;
 `;
@@ -44,12 +63,14 @@ const GraphWrapper = styled.div`
 interface EditorProps {
   loadedSong: DeepReadonly<Song>;
   loadSong: (song: Song) => void;
+  editSong: (editSongParams: EditSong) => void;
   togglePlayback: () => void,
 }
 
 interface EditorState {
   selectedTrack: number;
   selectedRow: number;
+  currentOctave: number;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -59,6 +80,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     this.state = {
       selectedTrack: 0,
       selectedRow: 0,
+      currentOctave: 0,
     };
   }
 
@@ -100,6 +122,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
           default:
             console.log('Unhandled key event', ev);
+        }
+        if (keyboard2noteMapping[ev.code] != undefined) {
+          this.props.editSong({
+            trackIndex: draft.selectedTrack, 
+            rowIndex: draft.selectedRow, 
+            note: String.fromCharCode(95 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
+          });
         }
       }),
     );
@@ -154,6 +183,7 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   loadSong: (song: Song) => dispatch(setSong(song)),
+  editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
   togglePlayback: () => dispatch(togglePlayback()),
 });
 

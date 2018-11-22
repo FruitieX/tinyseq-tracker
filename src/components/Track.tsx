@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Instrument } from '../types/instrument';
+import { string } from 'prop-types';
 
 const TrackContainer = styled.div`
   padding-left: 16px;
@@ -23,35 +24,28 @@ const NoteContainer = styled.div<INoteContainerProps>`
   background-color: ${props => (props.selected ? '#f52' : 'inherit')};
 `;
 
+interface Code2Note{
+  [key: string]: string;
+};
+
+const code2note:Code2Note = {
+  0: 'C-',
+  1: 'C#',
+  2: 'D-',
+  3: 'D#',
+  4: 'E-',
+  5: 'F-',
+  6: 'F#',
+  7: 'G-',
+  8: 'G#',
+  9: 'A-',
+  10: 'A#',
+  11: 'B-'
+};
+
 const getNoteName = (noteCode: number): string => {
-  switch (noteCode) {
-    case 0:
-      return 'C-';
-    case 1:
-      return 'C#';
-    case 2:
-      return 'D-';
-    case 3:
-      return 'D#';
-    case 4:
-      return 'E-';
-    case 5:
-      return 'F-';
-    case 6:
-      return 'F#';
-    case 7:
-      return 'G-';
-    case 8:
-      return 'G#';
-    case 9:
-      return 'A-';
-    case 10:
-      return 'A#';
-    case 11:
-      return 'B-';
-    default:
-      throw new Error('No note name exists for noteCodes outside 0-11');
-  }
+  if (code2note[noteCode] === undefined) {throw new Error('No note name exists for noteCodes outside 0-11')};
+  return code2note[noteCode];
 };
 
 const noteCodeToString = (noteCode: number): string => {

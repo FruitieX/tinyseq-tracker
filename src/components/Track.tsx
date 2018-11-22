@@ -10,10 +10,16 @@ const TrackContainer = styled.div`
 interface Props {
   index: number;
   instrument: Instrument;
+  selected: boolean;
+  selectedRow: number;
 }
 
-const NoteContainer = styled.div`
-  font-size: 10px;
+interface INoteContainerProps {
+  selected: boolean;
+}
+const NoteContainer = styled.div<INoteContainerProps>`
+  color: ${props => (props.selected ? '#000' : 'inherit')};
+  background-color: ${props => (props.selected ? '#f52' : 'inherit')};
 `;
 
 const getNoteName = (noteCode: number): string => {
@@ -70,16 +76,23 @@ const notesStringToArr = (notes: string): string[] => {
   return notes.split('').map(noteCharToString);
 };
 
-const renderRow = (note: string, index: number) => {
-  return <NoteContainer key={index}>{note}</NoteContainer>;
-};
-
 export class Track extends React.Component<Props> {
+  renderRow = (note: string, index: number) => {
+    return (
+      <NoteContainer
+        key={index}
+        selected={this.props.selected && this.props.selectedRow === index}
+      >
+        {note}
+      </NoteContainer>
+    );
+  };
+
   render() {
     const { instrument } = this.props;
     return (
       <TrackContainer>
-        {notesStringToArr(instrument.notes).map(renderRow)}
+        {notesStringToArr(instrument.notes).map(this.renderRow)}
       </TrackContainer>
     );
   }

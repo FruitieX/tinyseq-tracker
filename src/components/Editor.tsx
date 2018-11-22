@@ -11,6 +11,8 @@ import { RootState } from '../state/rootReducer';
 import { setSong } from '../state/song';
 import { Dispatch } from 'redux';
 import { DeepReadonly } from 'utility-types';
+import { mod } from '../utils/modulo';
+import produce from 'immer';
 
 const NoteEditor = styled.div`
   grid-area: main-editor;
@@ -44,7 +46,8 @@ interface EditorProps {
 }
 
 interface EditorState {
-  selectedLine: number;
+  selectedTrack: number;
+  selectedRow: number;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -52,16 +55,66 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     super(props);
 
     this.state = {
-      selectedLine: 0,
+      selectedTrack: 0,
+      selectedRow: 0,
     };
   }
 
+  handleKeyDown = (ev: KeyboardEvent) => {
+    this.setState(
+      produce<EditorState>(draft => {
+        switch (ev.key) {
+          case 'ArrowDown':
+            draft.selectedRow = mod(
+              draft.selectedRow + 1,
+              this.props.loadedSong[draft.selectedTrack].notes.length,
+            );
+            break;
+
+          case 'ArrowUp':
+            draft.selectedRow = mod(
+              draft.selectedRow - 1,
+              this.props.loadedSong[draft.selectedTrack].notes.length,
+            );
+            break;
+
+          case 'ArrowLeft':
+            draft.selectedTrack = mod(
+              draft.selectedTrack - 1,
+              this.props.loadedSong.length,
+            );
+            break;
+
+          case 'ArrowRight':
+            draft.selectedTrack = mod(
+              draft.selectedTrack + 1,
+              this.props.loadedSong.length,
+            );
+            break;
+        }
+      }),
+    );
+  };
+
   componentDidMount() {
     this.props.loadSong(parseSong(song as TSSong));
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
   }
 
   renderTrack = (instrument: Instrument, index: number) => {
-    return <Track key={index} index={index} instrument={instrument} />;
+    return (
+      <Track
+        key={index}
+        index={index}
+        instrument={instrument}
+        selected={this.state.selectedTrack === index}
+        selectedRow={this.state.selectedRow}
+      />
+    );
   };
 
   render() {

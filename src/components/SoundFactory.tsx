@@ -19,7 +19,6 @@ export default class SoundFactory extends React.Component {
       <div>
         <button onClick={this.addSine}>sin(ft)</button>
         <input type="text" value={this.state.value} onChange={this.handleChange}></input>
-        {/* <span>{this.state.value}</span> */}
       </div>
     );
   }

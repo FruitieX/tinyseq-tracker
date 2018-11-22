@@ -20,16 +20,23 @@ const NoteEditor = styled.div`
   display: flex;
   flex-direction: row;
   user-select: none;
+  border: solid 1px #fff;
+`;
+
+const NoteToolbar = styled.div`
+  grid-area: note-toolbar;
+  border: solid 1px #fff;
 `;
 
 const TrackerWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 6fr 3fr;
-  grid-template-rows: 150px 6fr 2fr;
+  grid-template-rows: 150px 6fr 50px 2fr;
   height: 100vh;
   grid-template-areas:
     'panel header right-top'
     'panel main-editor right-top'
+    'panel note-toolbar right-top'
     'panel footer right-bottom';
 `;
 
@@ -87,7 +94,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   handleKeyDown = (ev: KeyboardEvent) => {
     this.setState(
       produce<EditorState>(draft => {
-        switch (ev.key) {
+        switch (ev.code) {
           case 'ArrowDown':
             draft.selectedRow = mod(
               draft.selectedRow + 1,
@@ -115,20 +122,32 @@ export class Editor extends React.Component<EditorProps, EditorState> {
               this.props.loadedSong.length,
             );
             break;
+          // keyboard piano
+          case 'KeyA':
+          case 'KeyW':
+          case 'KeyS':
+          case 'KeyE':
+          case 'KeyD':
+          case 'KeyF':
+          case 'KeyT':
+          case 'KeyG':
+          case 'KeyY':
+          case 'KeyH':
+          case 'KeyU':
+          case 'KeyJ':
+            this.props.editSong({
+                trackIndex: draft.selectedTrack, 
+                rowIndex: draft.selectedRow, 
+                note: String.fromCharCode(35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
+              });
+            break;
 
-          case ' ': // Spacebar
+            case ' ': // Spacebar
             this.props.togglePlayback();
             break;
 
           default:
             console.log('Unhandled key event', ev);
-        }
-        if (keyboard2noteMapping[ev.code] != undefined) {
-          this.props.editSong({
-            trackIndex: draft.selectedTrack, 
-            rowIndex: draft.selectedRow, 
-            note: String.fromCharCode(95 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
-          });
         }
       }),
     );
@@ -139,7 +158,11 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       selectedTrack: trackIndex,
       selectedRow: rowIndex,
     });
-  };
+  }
+
+  handleOctaveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({currentOctave: parseInt(event.target.value)});
+  }
 
   componentDidMount() {
     this.props.loadSong(parseSong(song as TSSong));
@@ -163,12 +186,21 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     );
   };
 
+  renderToolbar = () => {
+    return (
+      <div>
+        <input id="octave" type="number" value={this.state.currentOctave} onChange={this.handleOctaveChange} min="0" max="9"></input>
+      </div>
+    );
+  }
+
   render() {
     return (
       <TrackerWrapper>
         <PatternWrapper>Pootis patterns here</PatternWrapper>
         <GraphWrapper />
         <NoteEditor>{this.props.loadedSong.map(this.renderTrack)}</NoteEditor>
+        <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
         <SoundFactory />
       </TrackerWrapper>
     );

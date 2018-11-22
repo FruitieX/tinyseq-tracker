@@ -13,6 +13,7 @@ import { Dispatch } from 'redux';
 import { DeepReadonly } from 'utility-types';
 import { mod } from '../utils/modulo';
 import produce from 'immer';
+import { togglePlayback } from '../state/player';
 
 const NoteEditor = styled.div`
   grid-area: main-editor;
@@ -43,6 +44,7 @@ const GraphWrapper = styled.div`
 interface EditorProps {
   loadedSong: DeepReadonly<Song>;
   loadSong: (song: Song) => void;
+  togglePlayback: () => void,
 }
 
 interface EditorState {
@@ -91,6 +93,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
               this.props.loadedSong.length,
             );
             break;
+
+          case ' ': // Spacebar
+            this.props.togglePlayback();
+            break;
+
+          default:
+            console.log('Unhandled key event', ev);
         }
       }),
     );
@@ -139,10 +148,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
 const mapStateToProps = (state: RootState) => ({
   loadedSong: state.song.loaded,
+  playback: state.player.playback,
+  playbackStarted: state.player.playbackStarted,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   loadSong: (song: Song) => dispatch(setSong(song)),
+  togglePlayback: () => dispatch(togglePlayback()),
 });
 
 export default connect(

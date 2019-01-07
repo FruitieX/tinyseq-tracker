@@ -78,6 +78,7 @@ interface EditorState {
   selectedTrack: number;
   selectedRow: number;
   currentOctave: number;
+  noteSkip: number;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -88,6 +89,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       selectedTrack: 0,
       selectedRow: 0,
       currentOctave: 0,
+      noteSkip: 1,
     };
   }
 
@@ -140,6 +142,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                 rowIndex: draft.selectedRow, 
                 note: String.fromCharCode(35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
               });
+              draft.selectedRow = mod(
+                draft.selectedRow + draft.noteSkip,
+                this.props.loadedSong[draft.selectedTrack].notes.length,
+              );
             break;
           case 'Backspace':
             this.props.editSong({
@@ -147,6 +153,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                   rowIndex: draft.selectedRow, 
                   note: "!"
                 });
+            draft.selectedRow = mod(
+              draft.selectedRow + draft.noteSkip,
+              this.props.loadedSong[draft.selectedTrack].notes.length,
+            );
             break;
           case 'Delete':
             this.props.editSong({
@@ -154,6 +164,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                   rowIndex: draft.selectedRow, 
                   note: " "
                 });
+            draft.selectedRow = mod(
+              draft.selectedRow + draft.noteSkip,
+              this.props.loadedSong[draft.selectedTrack].notes.length,
+            );
             break;
             case ' ': // Spacebar
             this.props.togglePlayback();
@@ -175,6 +189,12 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
   handleOctaveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({currentOctave: parseInt(event.target.value)});
+  }
+
+  handleNoteSkipChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (parseInt(event.target.value)) {
+      this.setState({noteSkip: parseInt(event.target.value)});
+    }
   }
 
   componentDidMount() {
@@ -202,7 +222,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   renderToolbar = () => {
     return (
       <div>
-        <input id="octave" type="number" value={this.state.currentOctave} onChange={this.handleOctaveChange} min="0" max="9"></input>
+        <span>Oct</span><input id="octave" type="number" value={this.state.currentOctave} onChange={this.handleOctaveChange} min="0" max="9"></input>
+        <span>Skip</span><input id="noteSkip" type="number" value={this.state.noteSkip} onChange={this.handleNoteSkipChange} min="1" max="32"></input> 
       </div>
     );
   }

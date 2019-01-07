@@ -22,6 +22,7 @@ interface INoteContainerProps {
 const NoteContainer = styled.div<INoteContainerProps>`
   color: ${props => (props.selected ? '#000' : 'inherit')};
   background-color: ${props => (props.selected ? '#f52' : 'inherit')};
+  text-align: center;
 `;
 
 interface Code2Note{
@@ -92,6 +93,7 @@ export class Track extends React.Component<Props> {
     const { instrument } = this.props;
     return (
       <TrackContainer>
+      <div className="track-name"><h3>Track</h3><p>{this.props.index}</p></div>
         {notesStringToArr(instrument.notes).map(this.renderRow)}
       </TrackContainer>
     );

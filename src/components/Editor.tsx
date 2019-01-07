@@ -21,6 +21,10 @@ const NoteEditor = styled.div`
   flex-direction: row;
   user-select: none;
   border: solid 1px #fff;
+  .track-name {
+    text-align: center;
+    margin-bottom: 10px;
+  }
 `;
 
 const NoteToolbar = styled.div`

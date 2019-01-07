@@ -141,7 +141,20 @@ export class Editor extends React.Component<EditorProps, EditorState> {
                 note: String.fromCharCode(35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
               });
             break;
-
+          case 'Backspace':
+            this.props.editSong({
+                  trackIndex: draft.selectedTrack, 
+                  rowIndex: draft.selectedRow, 
+                  note: "!"
+                });
+            break;
+          case 'Delete':
+            this.props.editSong({
+                  trackIndex: draft.selectedTrack, 
+                  rowIndex: draft.selectedRow, 
+                  note: " "
+                });
+            break;
             case ' ': // Spacebar
             this.props.togglePlayback();
             break;

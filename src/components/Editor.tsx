@@ -5,6 +5,7 @@ import song from '../../song.json';
 import { Instrument, parseSong, TSSong, Song } from '../types/instrument';
 import { Track } from './Track';
 import SoundFactory from './SoundFactory';
+import PlaybackHandler from './PlaybackToolbar';
 
 import { connect } from 'react-redux';
 import { RootState } from '../state/rootReducer';
@@ -38,7 +39,7 @@ const TrackerWrapper = styled.div`
   grid-template-rows: 150px 6fr 50px 2fr;
   height: 100vh;
   grid-template-areas:
-    'panel header right-top'
+    'playback-toolbar header right-top'
     'panel main-editor right-top'
     'panel note-toolbar right-top'
     'panel footer right-bottom';
@@ -100,6 +101,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   handleKeyDown = (ev: KeyboardEvent) => {
     this.setState(
       produce<EditorState>(draft => {
+        console.log(ev.code);
         switch (ev.code) {
           case 'ArrowDown':
             draft.selectedRow = mod(
@@ -173,7 +175,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
               this.props.loadedSong[draft.selectedTrack].notes.length,
             );
             break;
-            case ' ': // Spacebar
+            case 'Space': // Spacebar
             this.props.togglePlayback();
             break;
 
@@ -239,6 +241,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <GraphWrapper />
         <NoteEditor>{this.props.loadedSong.map(this.renderTrack)}</NoteEditor>
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
+        <PlaybackHandler />
         <SoundFactory />
       </TrackerWrapper>
     );

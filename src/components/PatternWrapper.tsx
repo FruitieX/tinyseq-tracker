@@ -32,6 +32,7 @@ interface Props {
   loadedSong: DeepReadonly<Song>;
   editPattern:  (trackId: number, patternId: number, value: number) => void;
   currentPattern: number;
+  setCurrentPattern: (value: number) => void;
 }
 
 class PatternWrapper extends React.Component<Props> {
@@ -39,9 +40,13 @@ class PatternWrapper extends React.Component<Props> {
     this.props.editPattern(trackId, index, Number(event.target.value));
   }
 
+  handleClick = (value: number, event: React.MouseEvent<HTMLInputElement>) => {
+    this.props.setCurrentPattern(value);
+  }
+
   renderTrack = (instrument: DeepReadonly<Instrument>, trackId: number) => {
     return instrument.patterns.map((pattern, patternIndex) =>
-      <Input x={trackId} y={patternIndex} active={this.props.currentPattern === patternIndex} type="number" key={patternIndex} value={pattern} onChange={this.handleChange(trackId, patternIndex)} />
+      <Input x={trackId} y={patternIndex} active={this.props.currentPattern === patternIndex} type="number" key={patternIndex} value={pattern} onChange={this.handleChange(trackId, patternIndex)} onClick={(e) => this.handleClick(patternIndex, e)} />
     )
   }
 

@@ -240,7 +240,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   render() {
     return (
       <TrackerWrapper>
-        <PatternWrapper currentPattern={this.state.currentPattern} />
+        <PatternWrapper currentPattern={this.state.currentPattern} setCurrentPattern={this.setCurrentPattern} />
         <GraphWrapper />
         <NoteEditor>{this.props.loadedSong.map(this.renderTrack)}</NoteEditor>
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
@@ -248,6 +248,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <SoundFactory />
       </TrackerWrapper>
     );
+  }
+  
+  setCurrentPattern = (value: number) => {
+    this.setState({currentPattern: value});
   }
 }
 

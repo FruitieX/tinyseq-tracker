@@ -44,7 +44,6 @@ export const songReducer: Reducer<SongState, SongActions> = (
         draft.loaded = action.payload;
         break;
       case getType(editSong):
-        console.log(action.payload);
         draft.loaded[action.payload.trackIndex].notes[action.payload.patternIndex] = strReplace(draft.loaded[action.payload.trackIndex].notes[action.payload.patternIndex], action.payload.rowIndex, action.payload.note);
         break;
 

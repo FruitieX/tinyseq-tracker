@@ -47,7 +47,6 @@ export const songReducer: Reducer<SongState, SongActions> = (
   produce(state, draft => {
     switch (action.type) {
       case getType(addPattern):
-        console.log(action.payload);
         draft.loaded[action.payload.trackId].notes.push(action.payload.notes);
         draft.loaded[action.payload.trackId].patterns.push(draft.loaded[action.payload.trackId].notes.length - 1);
       break;

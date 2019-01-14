@@ -38,14 +38,16 @@ interface Props {
 
 class PatternWrapper extends React.Component<Props> {
   handleChange = (trackId: number, index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (Number(event.target.value) >= 0) {
-      if (Number(event.target.value) < this.props.loadedSong[trackId].patterns.length) {
-        this.props.editPattern(trackId, index, Number(event.target.value));
-      } else {
-        // add empty pattern to last place
-        this.props.addPattern(trackId, Array(this.props.loadedSong[trackId].notes[this.props.loadedSong[trackId].notes.length - 1].length + 1).join(" "));
-        // put the current input field value to the created pattern index value
-        this.props.editPattern(trackId, index, this.props.loadedSong[trackId].patterns.length);
+    if (parseInt(event.target.value) != NaN) {
+      if (parseInt(event.target.value) >= 0) {
+        if (parseInt(event.target.value) < this.props.loadedSong[trackId].patterns.length) {
+          this.props.editPattern(trackId, index, parseInt(event.target.value));
+        } else {
+          // add empty pattern to last place
+          this.props.addPattern(trackId, Array(this.props.loadedSong[trackId].notes[this.props.loadedSong[trackId].notes.length - 1].length + 1).join(" "));
+          // put the current input field value to the created pattern index value
+          this.props.editPattern(trackId, index, this.props.loadedSong[trackId].patterns.length);
+        }
       }
     }
   }

@@ -101,19 +101,19 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   handleKeyDown = (ev: KeyboardEvent) => {
     this.setState(
       produce<EditorState>(draft => {
-        console.log(ev.code);
+        // console.log(ev.code);
         switch (ev.code) {
           case 'ArrowDown':
             draft.selectedRow = mod(
               draft.selectedRow + 1,
-              this.props.loadedSong[draft.selectedTrack].notes.length,
+              this.props.loadedSong[draft.selectedTrack].notes[this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern]].length,
             );
             break;
 
           case 'ArrowUp':
             draft.selectedRow = mod(
               draft.selectedRow - 1,
-              this.props.loadedSong[draft.selectedTrack].notes.length,
+              this.props.loadedSong[draft.selectedTrack].notes[this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern]].length,
             );
             break;
 
@@ -146,7 +146,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             this.props.editSong({
                 trackIndex: draft.selectedTrack, 
                 rowIndex: draft.selectedRow, 
-                patternIndex: draft.currentPattern,
+                patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern],
                 note: String.fromCharCode(35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
               });
               draft.selectedRow = mod(
@@ -158,7 +158,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             this.props.editSong({
                   trackIndex: draft.selectedTrack, 
                   rowIndex: draft.selectedRow, 
-                  patternIndex: draft.currentPattern,
+                  patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern],
                   note: "!"
                 });
             draft.selectedRow = mod(
@@ -170,7 +170,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             this.props.editSong({
                   trackIndex: draft.selectedTrack, 
                   rowIndex: draft.selectedRow, 
-                  patternIndex: draft.currentPattern,
+                  patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern],
                   note: " "
                 });
             draft.selectedRow = mod(
@@ -197,7 +197,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   }
 
   handleOctaveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({currentOctave: parseInt(event.target.value)});
+    if (parseInt(event.target.value)) {
+      this.setState({currentOctave: parseInt(event.target.value)});
+    }
   }
 
   handleNoteSkipChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -94,7 +94,7 @@ export class Track extends React.Component<Props> {
     const { instrument } = this.props;
     return (
       <TrackContainer>
-      <div className="track-name"><h3>Track</h3><p>{this.props.index}</p></div>
+        <div className="track-name"><h3>Track</h3><p>{this.props.index}</p></div>
         {notesStringToArr(instrument.notes[instrument.patterns[this.props.currentPattern]]).map(this.renderRow)}
       </TrackContainer>
     );

@@ -2,14 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 import song from '../../song.json';
-import { Instrument, parseSong, TSSong, Song } from '../types/instrument';
+import { defaultInstrument, Instrument, parseSong, TSSong, Song } from '../types/instrument';
 import { Track } from './Track';
 import SoundFactory from './SoundFactory';
 import PlaybackHandler from './PlaybackToolbar';
 
 import { connect } from 'react-redux';
 import { RootState } from '../state/rootReducer';
-import { setSong, editSong, EditSong } from '../state/song';
+import { addInstrument, setSong, editSong, EditSong } from '../state/song';
 import { Dispatch } from 'redux';
 import { DeepReadonly } from 'utility-types';
 import { mod } from '../utils/modulo';
@@ -46,6 +46,16 @@ const TrackerWrapper = styled.div`
     'panel footer right-bottom';
 `;
 
+const AddInstrumentButton = styled.input`
+  height: 30px;
+  background-color: Transparent;
+  border: 1px solid gray;
+  color: white;
+  &:hover {
+    background-color: green;
+  }
+`;
+
 interface KeyCode2Number{
   [key: string]: number;
 };
@@ -72,9 +82,10 @@ const GraphWrapper = styled.div`
 interface EditorProps {
   loadedSong: DeepReadonly<Song>;
   loadSong: (song: Song) => void;
+  addInstrument: (instrument: Instrument) => void;
   addPattern: (notes: string) => void;
   editSong: (editSongParams: EditSong) => void;
-  togglePlayback: () => void,
+  togglePlayback: () => void;
 }
 
 interface EditorState {
@@ -96,6 +107,16 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       noteSkip: 1,
       currentPattern: 0
     };
+  }
+
+  handleAddInstrumentClick = () => {
+    // create new instrument from the default instrument settings
+    // TODO: fix the creating of an instrument in a better way
+    // var i = <Instrument>{defaultInstrument};
+    // make the first note string as long as the the note string of the first instrument
+    //  i.notes[0] = Array(this.props.loadedSong[0].notes[0].length + 1).join(" ");
+    // and send it off to the addInstrument function
+    this.props.addInstrument({instrument: defaultInstrument});
   }
 
   handleKeyDown = (ev: KeyboardEvent) => {
@@ -245,7 +266,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       <TrackerWrapper>
         <PatternWrapper currentPattern={this.state.currentPattern} setCurrentPattern={this.setCurrentPattern} />
         <GraphWrapper />
-        <NoteEditor>{this.props.loadedSong.map(this.renderTrack)}</NoteEditor>
+        <NoteEditor>
+          {this.props.loadedSong.map(this.renderTrack)}
+          <AddInstrumentButton type="button" value="+" onClick={this.handleAddInstrumentClick} />
+        </NoteEditor>
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
         <PlaybackHandler />
         <SoundFactory />
@@ -265,6 +289,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
+  addInstrument: (instrument: Instrument) => dispatch(addInstrument(instrument)),
   loadSong: (song: Song) => dispatch(setSong(song)),
   editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
   togglePlayback: () => dispatch(togglePlayback()),

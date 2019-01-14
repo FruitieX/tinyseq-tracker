@@ -90,12 +90,12 @@ class PatternWrapper extends React.Component<Props> {
 
   renderTrack = (instrument: DeepReadonly<Instrument>, trackId: number) => {
     return instrument.patterns.map((pattern, patternIndex) =>
-      <Input x={trackId} y={patternIndex} active={this.props.currentPattern === patternIndex} type="number" key={patternIndex} value={pattern} onChange={this.handleChange(trackId, patternIndex)} onClick={(e) => this.handleClick(patternIndex, trackId, e)} />
+      <Input x={trackId} y={patternIndex} active={this.props.currentPattern === patternIndex} type="number" key={trackId.toString() + patternIndex.toString()} value={pattern} onChange={this.handleChange(trackId, patternIndex)} onClick={(e) => this.handleClick(patternIndex, trackId, e)} />
       )
     }
   
   renderButtons = (instrument: DeepReadonly<Instrument>, trackId: number) => {
-    return <AddPatternInput x={trackId} y={instrument.patterns.length} active={false} type="button" value="+" onClick={this.handleAddPatternButton(trackId)} />
+    return <AddPatternInput x={trackId} y={instrument.patterns.length} active={false} type="button" key={"b" + trackId.toString()} value="+" onClick={this.handleAddPatternButton(trackId)} />
   }
 
   render() {

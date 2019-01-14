@@ -1,11 +1,14 @@
 import { createStandardAction, ActionType, getType } from 'typesafe-actions';
 import { Reducer } from 'redux';
 import { DeepReadonly } from 'utility-types';
-import { Song } from '../types/instrument';
+import { Song, Instrument } from '../types/instrument';
 import produce from 'immer';
 
 const strReplace = (str: string, index: number, character: string) => str.slice(0, index) + character + str.slice(index + 1);
 
+export interface AddInstrument {
+  instrument: Instrument;
+}
 export interface EditSong {
   trackIndex: number;
   rowIndex: number;
@@ -24,12 +27,13 @@ export interface EditPattern {
   value: number
 }
 
+export const addInstrument = createStandardAction('song/ADD_INSTRUMENT')<AddInstrument>();
 export const addPattern = createStandardAction('song/ADD_PATTERN')<AddPattern>();
 export const editPattern = createStandardAction('song/EDIT_PATTERN')<EditPattern>();
 export const editSong = createStandardAction('song/EDIT_SONG')<EditSong>();
 export const setSong = createStandardAction('song/SET_SONG')<Song>();
 
-const actions = { addPattern, editPattern, editSong, setSong };
+const actions = { addInstrument, addPattern, editPattern, editSong, setSong };
 export type SongActions = ActionType<typeof actions>;
 
 export type SongState = DeepReadonly<{
@@ -46,6 +50,9 @@ export const songReducer: Reducer<SongState, SongActions> = (
 ) =>
   produce(state, draft => {
     switch (action.type) {
+      case getType(addInstrument):
+        draft.loaded.push(action.payload.instrument);
+        break;
       case getType(addPattern):
         draft.loaded[action.payload.trackId].notes.push(action.payload.notes);
         draft.loaded[action.payload.trackId].patterns.push(draft.loaded[action.payload.trackId].notes.length - 1);

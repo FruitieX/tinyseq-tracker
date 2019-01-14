@@ -9,6 +9,7 @@ const strReplace = (str: string, index: number, character: string) => str.slice(
 export interface EditSong {
   trackIndex: number;
   rowIndex: number;
+  patternIndex: number;
   note: string;
 };
 
@@ -43,7 +44,8 @@ export const songReducer: Reducer<SongState, SongActions> = (
         draft.loaded = action.payload;
         break;
       case getType(editSong):
-        draft.loaded[action.payload.trackIndex].notes = strReplace(draft.loaded[action.payload.trackIndex].notes, action.payload.rowIndex, action.payload.note);
+        console.log(action.payload);
+        draft.loaded[action.payload.trackIndex].notes[action.payload.patternIndex] = strReplace(draft.loaded[action.payload.trackIndex].notes[action.payload.patternIndex], action.payload.rowIndex, action.payload.note);
         break;
 
       case getType(editPattern):

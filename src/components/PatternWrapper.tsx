@@ -17,6 +17,7 @@ const Container = styled.div`
 interface InputProps {
   x: number;
   y: number;
+  active: boolean;
 }
 
 const Input = styled.input<InputProps>`
@@ -24,6 +25,7 @@ const Input = styled.input<InputProps>`
   grid-row: ${props => props.y + 1} / span 1;
   max-width: 30px;
   max-height: 30px;
+  background-color: ${props => props.active ? "red" : "white" };
 `;
 
 interface Props {
@@ -39,12 +41,12 @@ class PatternWrapper extends React.Component<Props> {
 
   renderTrack = (instrument: DeepReadonly<Instrument>, trackId: number) => {
     return instrument.patterns.map((pattern, patternIndex) =>
-      <Input x={trackId} y={patternIndex} type="number" key={patternIndex} value={pattern} onChange={this.handleChange(trackId, patternIndex)} />
+      <Input x={trackId} y={patternIndex} active={this.props.currentPattern === patternIndex} type="number" key={patternIndex} value={pattern} onChange={this.handleChange(trackId, patternIndex)} />
     )
   }
 
   render() {
-    console.log(this.props.loadedSong)
+    // console.log(this.props.loadedSong)
     return (
       <Container>
         {this.props.loadedSong.map(this.renderTrack)}

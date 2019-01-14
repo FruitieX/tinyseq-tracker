@@ -145,33 +145,36 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             this.props.editSong({
                 trackIndex: draft.selectedTrack, 
                 rowIndex: draft.selectedRow, 
+                patternIndex: draft.currentPattern,
                 note: String.fromCharCode(35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
               });
               draft.selectedRow = mod(
                 draft.selectedRow + draft.noteSkip,
-                this.props.loadedSong[draft.selectedTrack].notes.length,
+                this.props.loadedSong[draft.selectedTrack].notes[draft.currentPattern].length,
               );
             break;
           case 'Backspace':
             this.props.editSong({
                   trackIndex: draft.selectedTrack, 
                   rowIndex: draft.selectedRow, 
+                  patternIndex: draft.currentPattern,
                   note: "!"
                 });
             draft.selectedRow = mod(
               draft.selectedRow + draft.noteSkip,
-              this.props.loadedSong[draft.selectedTrack].notes.length,
+              this.props.loadedSong[draft.selectedTrack].notes[draft.currentPattern].length,
             );
             break;
           case 'Delete':
             this.props.editSong({
                   trackIndex: draft.selectedTrack, 
                   rowIndex: draft.selectedRow, 
+                  patternIndex: draft.currentPattern,
                   note: " "
                 });
             draft.selectedRow = mod(
               draft.selectedRow + draft.noteSkip,
-              this.props.loadedSong[draft.selectedTrack].notes.length,
+              this.props.loadedSong[draft.selectedTrack].notes[draft.currentPattern].length,
             );
             break;
             case 'Space': // Spacebar

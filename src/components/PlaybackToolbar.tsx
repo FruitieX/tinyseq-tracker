@@ -21,7 +21,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
   render() {
     return (
       <PlaybackToolbar>
-        <button id="play" onClick={this.props.togglePlayback}>{this.props.playback === 'playing' ? '▶' : "❚❚"}</button>
+        <button id="play" onClick={this.props.togglePlayback}>{this.props.playback === 'playing' ? "❚❚" : '▶'}</button>
         <button id="stop">■</button>
       </PlaybackToolbar>
     );

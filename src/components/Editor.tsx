@@ -72,6 +72,7 @@ const GraphWrapper = styled.div`
 interface EditorProps {
   loadedSong: DeepReadonly<Song>;
   loadSong: (song: Song) => void;
+  addPattern: (notes: string) => void;
   editSong: (editSongParams: EditSong) => void;
   togglePlayback: () => void,
 }

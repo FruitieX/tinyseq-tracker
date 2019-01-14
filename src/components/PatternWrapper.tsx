@@ -3,8 +3,8 @@ import * as React from 'react';
 import { RootState } from '../state/rootReducer';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { editPattern } from '../state/song';
-import { Song, Instrument } from '../types/instrument';
+import { addPattern, editPattern } from '../state/song';
+import { Song, Instrument, parseInstrument } from '../types/instrument';
 import { DeepReadonly } from 'utility-types';
 
 const Container = styled.div`
@@ -30,6 +30,7 @@ const Input = styled.input<InputProps>`
 
 interface Props {
   loadedSong: DeepReadonly<Song>;
+  addPattern: (trackId: number, notes: string) => void;
   editPattern:  (trackId: number, patternId: number, value: number) => void;
   currentPattern: number;
   setCurrentPattern: (value: number) => void;
@@ -37,21 +38,30 @@ interface Props {
 
 class PatternWrapper extends React.Component<Props> {
   handleChange = (trackId: number, index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.props.editPattern(trackId, index, Number(event.target.value));
+    if (Number(event.target.value) >= 0) {
+      if (Number(event.target.value) < this.props.loadedSong[trackId].patterns.length) {
+        this.props.editPattern(trackId, index, Number(event.target.value));
+      } else {
+        // add empty pattern to last place
+        this.props.addPattern(trackId, Array(this.props.loadedSong[trackId].notes[this.props.loadedSong[trackId].notes.length - 1].length + 1).join(" "));
+        // put the current input field value to the created pattern index value
+        this.props.editPattern(trackId, index, this.props.loadedSong[trackId].patterns.length);
+      }
+    }
   }
 
-  handleClick = (value: number, event: React.MouseEvent<HTMLInputElement>) => {
-    this.props.setCurrentPattern(value);
+  handleClick = (patternIndex: number, trackId: number, event: React.MouseEvent<HTMLInputElement>) => {
+    // set current pattern to the pattern index that that was clicked on
+    this.props.setCurrentPattern(patternIndex);
   }
 
   renderTrack = (instrument: DeepReadonly<Instrument>, trackId: number) => {
     return instrument.patterns.map((pattern, patternIndex) =>
-      <Input x={trackId} y={patternIndex} active={this.props.currentPattern === patternIndex} type="number" key={patternIndex} value={pattern} onChange={this.handleChange(trackId, patternIndex)} onClick={(e) => this.handleClick(patternIndex, e)} />
+      <Input x={trackId} y={patternIndex} active={this.props.currentPattern === patternIndex} type="number" key={patternIndex} value={pattern} onChange={this.handleChange(trackId, patternIndex)} onClick={(e) => this.handleClick(patternIndex, trackId, e)} />
     )
   }
 
   render() {
-    // console.log(this.props.loadedSong)
     return (
       <Container>
         {this.props.loadedSong.map(this.renderTrack)}
@@ -69,6 +79,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     trackId,
     patternId,
     value
+  })),
+  addPattern: (trackId: number, notes: string) => dispatch(addPattern({
+    trackId,
+    notes
   }))
 });
 

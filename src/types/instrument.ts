@@ -1,7 +1,8 @@
 type WaveformFunction = string;
-type Notes = string;
-type SecondsPerRow = number;
-type RowsPerPattern = number;
+type Notes = string[];
+type Patterns = number[];
+type SecondsPerRow = number[];
+type RowsPerPattern = number[];
 type Transpose = number;
 type Volume = number;
 type Attack = number;
@@ -12,6 +13,7 @@ type Release = number;
 export type TSInstrument = [
   WaveformFunction,
   Notes,
+  Patterns,
   SecondsPerRow,
   RowsPerPattern,
   Transpose,
@@ -27,6 +29,7 @@ export type TSSong = TSInstrument[];
 export interface Instrument {
   waveform: WaveformFunction;
   notes: Notes;
+  patterns: Patterns;
   rowDuration: SecondsPerRow;
   patternRows: RowsPerPattern;
   transpose: Transpose;
@@ -42,14 +45,15 @@ export type Song = Instrument[];
 export const parseInstrument = (tsInstrument: TSInstrument): Instrument => ({
   waveform: tsInstrument[0],
   notes: tsInstrument[1],
-  rowDuration: tsInstrument[2],
-  patternRows: tsInstrument[3],
-  transpose: tsInstrument[4],
-  volume: tsInstrument[5],
-  attack: tsInstrument[6],
-  decay: tsInstrument[7],
-  sustain: tsInstrument[8],
-  release: tsInstrument[9],
+  patterns: tsInstrument[2],
+  rowDuration: tsInstrument[3],
+  patternRows: tsInstrument[4],
+  transpose: tsInstrument[5],
+  volume: tsInstrument[6],
+  attack: tsInstrument[7],
+  decay: tsInstrument[8],
+  sustain: tsInstrument[9],
+  release: tsInstrument[10],
 });
 
 export const parseSong = (tsSong: TSSong): Song => tsSong.map(parseInstrument);

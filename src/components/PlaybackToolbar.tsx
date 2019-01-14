@@ -17,9 +17,7 @@ interface PlaybackProps {
 }
 
 export class PlaybackHandler extends React.Component<PlaybackProps> {
-  togglePlayIcon = () => {
 
-  }
   render() {
     return (
       <PlaybackToolbar>

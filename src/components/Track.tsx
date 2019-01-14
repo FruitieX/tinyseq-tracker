@@ -14,6 +14,7 @@ interface Props {
   selected: boolean;
   selectedRow: number;
   onClickNote: (trackIndex: number, rowIndex: number) => void;
+  currentPattern: number;
 }
 
 interface INoteContainerProps {
@@ -94,7 +95,7 @@ export class Track extends React.Component<Props> {
     return (
       <TrackContainer>
       <div className="track-name"><h3>Track</h3><p>{this.props.index}</p></div>
-        {notesStringToArr(instrument.notes).map(this.renderRow)}
+        {notesStringToArr(instrument.notes[this.props.currentPattern]).map(this.renderRow)}
       </TrackContainer>
     );
   }

@@ -12,10 +12,17 @@ export interface EditSong {
   note: string;
 };
 
-export const setSong = createStandardAction('song/SET_SONG')<Song>();
-export const editSong = createStandardAction('song/EDIT_SONG',)<EditSong>();
+export interface EditPattern {
+  trackId: number,
+  patternId: number,
+  value: number
+}
 
-const actions = { setSong, editSong };
+export const setSong = createStandardAction('song/SET_SONG')<Song>();
+export const editPattern = createStandardAction('song/EDIT_PATTERN')<EditPattern>();
+export const editSong = createStandardAction('song/EDIT_SONG')<EditSong>();
+
+const actions = { setSong, editSong, editPattern };
 export type SongActions = ActionType<typeof actions>;
 
 export type SongState = DeepReadonly<{
@@ -37,6 +44,11 @@ export const songReducer: Reducer<SongState, SongActions> = (
         break;
       case getType(editSong):
         draft.loaded[action.payload.trackIndex].notes = strReplace(draft.loaded[action.payload.trackIndex].notes, action.payload.rowIndex, action.payload.note);
+        break;
+
+      case getType(editPattern):
+        draft.loaded[action.payload.trackId].patterns[action.payload.patternId] = action.payload.value;
+    
         break;
     }
   });

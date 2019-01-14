@@ -15,6 +15,7 @@ import { DeepReadonly } from 'utility-types';
 import { mod } from '../utils/modulo';
 import produce from 'immer';
 import { togglePlayback } from '../state/player';
+import PatternWrapper from './PatternWrapper';
 
 const NoteEditor = styled.div`
   grid-area: main-editor;
@@ -64,10 +65,6 @@ const keyboard2noteMapping:KeyCode2Number = {
   KeyJ: 11,
 };
 
-const PatternWrapper = styled.div`
-  grid-area: panel;
-`;
-
 const GraphWrapper = styled.div`
   grid-area: header;
 `;
@@ -84,6 +81,7 @@ interface EditorState {
   selectedRow: number;
   currentOctave: number;
   noteSkip: number;
+  currentPattern: number;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -95,6 +93,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       selectedRow: 0,
       currentOctave: 0,
       noteSkip: 1,
+      currentPattern: 0
     };
   }
 
@@ -218,6 +217,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         key={index}
         index={index}
         instrument={instrument}
+        currentPattern={this.state.currentPattern}
         selected={this.state.selectedTrack === index}
         onClickNote={this.handleNoteClick}
         selectedRow={this.state.selectedRow}
@@ -237,7 +237,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   render() {
     return (
       <TrackerWrapper>
-        <PatternWrapper>Pootis patterns here</PatternWrapper>
+        <PatternWrapper currentPattern={this.state.currentPattern} />
         <GraphWrapper />
         <NoteEditor>{this.props.loadedSong.map(this.renderTrack)}</NoteEditor>
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>

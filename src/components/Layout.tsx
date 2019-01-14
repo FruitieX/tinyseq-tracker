@@ -12,6 +12,7 @@ const GridContainer = styled.main`
   font-family: 'Roboto Mono', monospace;
   background: #444;
   color: white;
+  input, select, textarea, button { font-family:inherit; }
 `;
 
 interface Props {

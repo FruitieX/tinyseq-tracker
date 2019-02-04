@@ -71,9 +71,18 @@ const noteCharToString = (note: string): string => {
 
 const notesStringToArr = (notes: string): string[] => {
   return notes.split('').map(noteCharToString);
-};
+}
+
 
 export class Track extends React.Component<Props> {
+
+  getPattern = (instrument: Instrument): string[] => {
+    if (instrument.patterns[this.props.currentPattern] > 0) {
+      return notesStringToArr(instrument.notes[instrument.patterns[this.props.currentPattern] - 1]);
+    };
+    return [" "];
+  }
+
   handleClick = (rowIndex: number) => () => {
     this.props.onClickNote(this.props.index, rowIndex);
   }
@@ -95,7 +104,8 @@ export class Track extends React.Component<Props> {
     return (
       <TrackContainer>
         <div className="track-name"><h3>Track</h3><p>{this.props.index}</p></div>
-        {notesStringToArr(instrument.notes[instrument.patterns[this.props.currentPattern]]).map(this.renderRow)}
+        {this.getPattern(instrument).map(this.renderRow)}
+        {/* {notesStringToArr(instrument.notes[instrument.patterns[this.props.currentPattern]]).map(this.renderRow)} */}
       </TrackContainer>
     );
   }

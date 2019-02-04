@@ -6,8 +6,10 @@ import produce from 'immer';
 export const togglePlayback = createStandardAction(
   'playback/TOGGLE_PLAYBACK',
 )();
+export const resetPlayback = createStandardAction('playback/RESET_PLAYBACK')();
+export const updateTime = createStandardAction('playback/UPDATE_TIME')();
 
-const actions = { togglePlayback };
+const actions = { togglePlayback, resetPlayback, updateTime };
 export type PlayerActions = ActionType<typeof actions>;
 
 export type PlaybackState = 'playing' | 'paused';
@@ -15,11 +17,13 @@ export type PlaybackState = 'playing' | 'paused';
 export type PlayerState = DeepReadonly<{
   playback: PlaybackState;
   playbackStarted: Date; // unix timestamp in ms
+  timeSinceStart: number;
 }>;
 
 const initialState: PlayerState = {
   playback: 'paused',
   playbackStarted: new Date(),
+  timeSinceStart: 0,
 };
 
 export const playerReducer: Reducer<PlayerState, PlayerActions> = (
@@ -33,8 +37,22 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
           draft.playback = 'paused';
         } else {
           draft.playback = 'playing';
-          draft.playbackStarted = new Date();
+          draft.playbackStarted = new Date(
+            new Date().getTime() - draft.timeSinceStart,
+          );
         }
+        break;
+      case getType(resetPlayback):
+        console.log('resetting playback');
+        draft.timeSinceStart = 0;
+        draft.playbackStarted = new Date();
+        // draft.playback = 'paused';
+        break;
+      case getType(updateTime):
+        draft.timeSinceStart =
+          new Date().getTime() - draft.playbackStarted.getTime();
+
+        // console.log("updating time to " + draft.timeSinceStart);
         break;
     }
   });

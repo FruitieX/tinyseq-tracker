@@ -20,7 +20,7 @@ import { Dispatch } from 'redux';
 import { DeepReadonly } from 'utility-types';
 import { mod } from '../utils/modulo';
 import produce from 'immer';
-import { togglePlayback } from '../state/player';
+import { togglePlayback, updateTime, PlaybackState } from '../state/player';
 import PatternWrapper from './PatternWrapper';
 import InstrumentManager, {
   playNote,
@@ -98,7 +98,9 @@ interface EditorProps {
   addInstrument: (instrument: Instrument) => void;
   addPattern: (notes: string) => void;
   editSong: (editSongParams: EditSong) => void;
+  playback: PlaybackState;
   togglePlayback: () => void;
+  updateTime: () => void;
 }
 
 interface EditorState {
@@ -108,6 +110,7 @@ interface EditorState {
   noteSkip: number;
   currentPattern: number;
   player?: InstrumentInstance;
+  timerHandle: number;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -122,6 +125,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       currentOctave: 0,
       noteSkip: 1,
       currentPattern: 0,
+      timerHandle: 0,
     };
   }
 
@@ -263,6 +267,11 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             break;
           case 'Space': // Spacebar
             this.props.togglePlayback();
+            if (this.props.playback === 'paused') {
+              draft.timerHandle = window.setInterval(this.props.updateTime, 10);
+            } else {
+              window.clearInterval(draft.timerHandle);
+            }
             break;
 
           default:
@@ -380,6 +389,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   loadSong: (song: Song) => dispatch(setSong(song)),
   editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
   togglePlayback: () => dispatch(togglePlayback()),
+  updateTime: () => dispatch(updateTime()),
 });
 
 export default connect(

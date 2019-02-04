@@ -201,7 +201,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
               rowIndex: draft.selectedRow,
               patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
                 draft.currentPattern
-              ],
+              ] - 1,
               note: String.fromCharCode(
                 35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave,
               ),
@@ -209,7 +209,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             draft.selectedRow = mod(
               draft.selectedRow + draft.noteSkip,
               this.props.loadedSong[draft.selectedTrack].notes[
-                draft.currentPattern
+                this.props.loadedSong[draft.selectedTrack].patterns[
+                  draft.currentPattern
+                ] - 1
               ].length,
             );
             break;
@@ -219,13 +221,15 @@ export class Editor extends React.Component<EditorProps, EditorState> {
               rowIndex: draft.selectedRow,
               patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
                 draft.currentPattern
-              ],
+              ] - 1,
               note: '!',
             });
             draft.selectedRow = mod(
               draft.selectedRow + draft.noteSkip,
               this.props.loadedSong[draft.selectedTrack].notes[
-                draft.currentPattern
+                this.props.loadedSong[draft.selectedTrack].patterns[
+                  draft.currentPattern
+                ] - 1
               ].length,
             );
             break;
@@ -235,13 +239,15 @@ export class Editor extends React.Component<EditorProps, EditorState> {
               rowIndex: draft.selectedRow,
               patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
                 draft.currentPattern
-              ],
+              ] - 1,
               note: ' ',
             });
             draft.selectedRow = mod(
               draft.selectedRow + draft.noteSkip,
               this.props.loadedSong[draft.selectedTrack].notes[
-                draft.currentPattern
+                this.props.loadedSong[draft.selectedTrack].patterns[
+                  draft.currentPattern
+                ] - 1
               ].length,
             );
             break;

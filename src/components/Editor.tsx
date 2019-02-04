@@ -16,6 +16,12 @@ import { mod } from '../utils/modulo';
 import produce from 'immer';
 import { togglePlayback } from '../state/player';
 import PatternWrapper from './PatternWrapper';
+import InstrumentManager, {
+  playNote,
+  InstrumentInstance,
+  initInstrument,
+  InstrumentManager as UnwrappedInstrumentManager,
+} from './Instrument';
 
 const NoteEditor = styled.div`
   grid-area: main-editor;
@@ -57,11 +63,11 @@ const AddInstrumentButton = styled.input`
   }
 `;
 
-interface KeyCode2Number{
+interface KeyCode2Number {
   [key: string]: number;
-};
+}
 
-const keyboard2noteMapping:KeyCode2Number = {
+const keyboard2noteMapping: KeyCode2Number = {
   KeyA: 0,
   KeyW: 1,
   KeyS: 2,
@@ -95,9 +101,12 @@ interface EditorState {
   currentOctave: number;
   noteSkip: number;
   currentPattern: number;
+  player?: InstrumentInstance;
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
+  instrumentRef = React.createRef<UnwrappedInstrumentManager>();
+
   constructor(props: EditorProps) {
     super(props);
 
@@ -117,7 +126,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     // make the first note string as long as the the note string of the first instrument
     //  i.notes[0] = Array(this.props.loadedSong[0].notes[0].length + 1).join(" ");
     // and send it off to the addInstrument function
-    this.props.addInstrument({instrument: defaultInstrument});
+    this.props.addInstrument(defaultInstrument);
   }
 
   handleKeyDown = (ev: KeyboardEvent) => {
@@ -165,6 +174,14 @@ export class Editor extends React.Component<EditorProps, EditorState> {
           case 'KeyH':
           case 'KeyU':
           case 'KeyJ':
+            // if (this.instrumentRef.current)
+            //   this.instrumentRef.current
+            //     // @ts-ignore: this is fine
+            //     .getWrappedInstance()
+            //     .playNote(
+            //       35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave,
+            //     );
+
             this.props.editSong({
                 trackIndex: draft.selectedTrack, 
                 rowIndex: draft.selectedRow, 
@@ -216,7 +233,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       selectedTrack: trackIndex,
       selectedRow: rowIndex,
     });
-  }
+  };
 
   handleOctaveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (parseInt(event.target.value)) {
@@ -260,7 +277,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <span>Skip</span><input id="noteSkip" type="number" value={this.state.noteSkip} onChange={this.handleNoteSkipChange} min="1" max="32"></input> 
       </div>
     );
-  }
+  };
 
   render() {
     return (
@@ -268,12 +285,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <PatternWrapper currentPattern={this.state.currentPattern} setCurrentPattern={this.setCurrentPattern} />
         <GraphWrapper />
         <NoteEditor>
-          {this.props.loadedSong.map(this.renderTrack)}
+          {this.props.loadedSong.map(this.renderTrack as any)}
           <AddInstrumentButton type="button" value="+" onClick={this.handleAddInstrumentClick} />
         </NoteEditor>
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
         <PlaybackHandler />
         <SoundFactory />
+        <InstrumentManager ref={this.instrumentRef} />
       </TrackerWrapper>
     );
   }
@@ -290,7 +308,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addInstrument: (instrument: Instrument) => dispatch(addInstrument(instrument)),
+  addInstrument: (instrument: Instrument) => dispatch(addInstrument({ instrument })),
   loadSong: (song: Song) => dispatch(setSong(song)),
   editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
   togglePlayback: () => dispatch(togglePlayback()),

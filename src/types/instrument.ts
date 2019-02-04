@@ -42,6 +42,17 @@ export interface Instrument {
 
 export type Song = Instrument[];
 
+// TODO: put these in config
+const I_WAVEFORM = 0;
+const I_TRANSPOSE = 1;
+const I_NOTES = 2;
+const I_SECONDS_PER_ROW = 3;
+const I_VOLUME = 4;
+const I_ATTACK = 5;
+const I_DECAY = 6;
+const I_SUSTAIN = 7;
+const I_RELEASE = 8;
+
 export const parseInstrument = (tsInstrument: TSInstrument): Instrument => ({
   waveform: tsInstrument[0],
   notes: tsInstrument[1],

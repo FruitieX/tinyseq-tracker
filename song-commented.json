@@ -4,6 +4,9 @@
     // waveform function
     "Math.random()",
 
+    // transpose
+    0,
+
     // notes
     // space = empty (do nothing)
     // ! = off note
@@ -12,12 +15,6 @@
 
     // seconds per row (60 / BPM / LPB)
     0.25,
-
-    // rows per pattern
-    8,
-
-    // transpose
-    0,
 
     // volume
     0.1,

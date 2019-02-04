@@ -26,11 +26,11 @@ const NoteContainer = styled.div<INoteContainerProps>`
   text-align: center;
 `;
 
-interface Code2Note{
+interface Code2Note {
   [key: string]: string;
-};
+}
 
-const code2note:Code2Note = {
+const code2note: Code2Note = {
   0: 'C-',
   1: 'C#',
   2: 'D-',
@@ -42,11 +42,13 @@ const code2note:Code2Note = {
   8: 'G#',
   9: 'A-',
   10: 'A#',
-  11: 'B-'
+  11: 'B-',
 };
 
 const getNoteName = (noteCode: number): string => {
-  if (code2note[noteCode] === undefined) {throw new Error('No note name exists for noteCodes outside 0-11')};
+  if (code2note[noteCode] === undefined) {
+    throw new Error('No note name exists for noteCodes outside 0-11');
+  }
   return code2note[noteCode];
 };
 
@@ -71,21 +73,21 @@ const noteCharToString = (note: string): string => {
 
 const notesStringToArr = (notes: string): string[] => {
   return notes.split('').map(noteCharToString);
-}
-
+};
 
 export class Track extends React.Component<Props> {
-
   getPattern = (instrument: Instrument): string[] => {
     if (instrument.patterns[this.props.currentPattern] > 0) {
-      return notesStringToArr(instrument.notes[instrument.patterns[this.props.currentPattern] - 1]);
-    };
-    return [" "];
-  }
+      return notesStringToArr(
+        instrument.notes[instrument.patterns[this.props.currentPattern] - 1],
+      );
+    }
+    return [' '];
+  };
 
   handleClick = (rowIndex: number) => () => {
     this.props.onClickNote(this.props.index, rowIndex);
-  }
+  };
 
   renderRow = (note: string, index: number) => {
     return (
@@ -103,7 +105,10 @@ export class Track extends React.Component<Props> {
     const { instrument } = this.props;
     return (
       <TrackContainer>
-        <div className="track-name"><h3>Track</h3><p>{this.props.index}</p></div>
+        <div className="track-name">
+          <h3>Track</h3>
+          <p>{this.props.index}</p>
+        </div>
         {this.getPattern(instrument).map(this.renderRow)}
         {/* {notesStringToArr(instrument.notes[instrument.patterns[this.props.currentPattern]]).map(this.renderRow)} */}
       </TrackContainer>

@@ -12,7 +12,12 @@ const GridContainer = styled.main`
   font-family: 'Roboto Mono', monospace;
   background: #444;
   color: white;
-  input, select, textarea, button { font-family:inherit; }
+  input,
+  select,
+  textarea,
+  button {
+    font-family: inherit;
+  }
 `;
 
 interface Props {
@@ -43,7 +48,10 @@ const Layout = ({ children }: Props) => (
             },
           ]}
         >
-        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet"></link>
+          <link
+            href="https://fonts.googleapis.com/css?family=Roboto+Mono"
+            rel="stylesheet"
+          />
         </Helmet>
         <GridContainer>{children}</GridContainer>
       </>

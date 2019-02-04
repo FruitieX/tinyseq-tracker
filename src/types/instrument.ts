@@ -67,11 +67,11 @@ export const parseInstrument = (tsInstrument: TSInstrument): Instrument => ({
   release: tsInstrument[10],
 });
 
-export const defaultInstrument: Instrument = ({
-  waveform: "Math.random()",
-  notes: ["                "],
+export const defaultInstrument: Instrument = {
+  waveform: 'Math.random()',
+  notes: ['                '],
   patterns: [0],
-  rowDuration: .5,
+  rowDuration: 0.5,
   rowsPerPattern: 32,
   transpose: 0,
   volume: 1,
@@ -79,6 +79,6 @@ export const defaultInstrument: Instrument = ({
   decay: 0,
   sustain: 0,
   release: 0,
-});
+};
 
 export const parseSong = (tsSong: TSSong): Song => tsSong.map(parseInstrument);

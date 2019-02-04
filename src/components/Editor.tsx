@@ -2,7 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 
 import song from '../../song.json';
-import { defaultInstrument, Instrument, parseSong, TSSong, Song } from '../types/instrument';
+import {
+  defaultInstrument,
+  Instrument,
+  parseSong,
+  TSSong,
+  Song,
+} from '../types/instrument';
 import { Track } from './Track';
 import SoundFactory from './SoundFactory';
 import PlaybackHandler from './PlaybackToolbar';
@@ -115,7 +121,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       selectedRow: 0,
       currentOctave: 0,
       noteSkip: 1,
-      currentPattern: 0
+      currentPattern: 0,
     };
   }
 
@@ -127,7 +133,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     //  i.notes[0] = Array(this.props.loadedSong[0].notes[0].length + 1).join(" ");
     // and send it off to the addInstrument function
     this.props.addInstrument(defaultInstrument);
-  }
+  };
 
   handleKeyDown = (ev: KeyboardEvent) => {
     this.setState(
@@ -137,14 +143,22 @@ export class Editor extends React.Component<EditorProps, EditorState> {
           case 'ArrowDown':
             draft.selectedRow = mod(
               draft.selectedRow + 1,
-              this.props.loadedSong[draft.selectedTrack].notes[this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern]].length,
+              this.props.loadedSong[draft.selectedTrack].notes[
+                this.props.loadedSong[draft.selectedTrack].patterns[
+                  draft.currentPattern
+                ]
+              ].length,
             );
             break;
 
           case 'ArrowUp':
             draft.selectedRow = mod(
               draft.selectedRow - 1,
-              this.props.loadedSong[draft.selectedTrack].notes[this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern]].length,
+              this.props.loadedSong[draft.selectedTrack].notes[
+                this.props.loadedSong[draft.selectedTrack].patterns[
+                  draft.currentPattern
+                ]
+              ].length,
             );
             break;
 
@@ -183,41 +197,55 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             //     );
 
             this.props.editSong({
-                trackIndex: draft.selectedTrack, 
-                rowIndex: draft.selectedRow, 
-                patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern],
-                note: String.fromCharCode(35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave)
-              });
-              draft.selectedRow = mod(
-                draft.selectedRow + draft.noteSkip,
-                this.props.loadedSong[draft.selectedTrack].notes[draft.currentPattern].length,
-              );
+              trackIndex: draft.selectedTrack,
+              rowIndex: draft.selectedRow,
+              patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
+                draft.currentPattern
+              ],
+              note: String.fromCharCode(
+                35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave,
+              ),
+            });
+            draft.selectedRow = mod(
+              draft.selectedRow + draft.noteSkip,
+              this.props.loadedSong[draft.selectedTrack].notes[
+                draft.currentPattern
+              ].length,
+            );
             break;
           case 'Backspace':
             this.props.editSong({
-                  trackIndex: draft.selectedTrack, 
-                  rowIndex: draft.selectedRow, 
-                  patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern],
-                  note: "!"
-                });
+              trackIndex: draft.selectedTrack,
+              rowIndex: draft.selectedRow,
+              patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
+                draft.currentPattern
+              ],
+              note: '!',
+            });
             draft.selectedRow = mod(
               draft.selectedRow + draft.noteSkip,
-              this.props.loadedSong[draft.selectedTrack].notes[draft.currentPattern].length,
+              this.props.loadedSong[draft.selectedTrack].notes[
+                draft.currentPattern
+              ].length,
             );
             break;
           case 'Delete':
             this.props.editSong({
-                  trackIndex: draft.selectedTrack, 
-                  rowIndex: draft.selectedRow, 
-                  patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[draft.currentPattern],
-                  note: " "
-                });
+              trackIndex: draft.selectedTrack,
+              rowIndex: draft.selectedRow,
+              patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
+                draft.currentPattern
+              ],
+              note: ' ',
+            });
             draft.selectedRow = mod(
               draft.selectedRow + draft.noteSkip,
-              this.props.loadedSong[draft.selectedTrack].notes[draft.currentPattern].length,
+              this.props.loadedSong[draft.selectedTrack].notes[
+                draft.currentPattern
+              ].length,
             );
             break;
-            case 'Space': // Spacebar
+          case 'Space': // Spacebar
             this.props.togglePlayback();
             break;
 
@@ -237,15 +265,15 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
   handleOctaveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (parseInt(event.target.value)) {
-      this.setState({currentOctave: parseInt(event.target.value)});
+      this.setState({ currentOctave: parseInt(event.target.value) });
     }
-  }
+  };
 
   handleNoteSkipChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (parseInt(event.target.value)) {
-      this.setState({noteSkip: parseInt(event.target.value)});
+      this.setState({ noteSkip: parseInt(event.target.value) });
     }
-  }
+  };
 
   componentDidMount() {
     this.props.loadSong(parseSong(song as TSSong));
@@ -273,8 +301,24 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   renderToolbar = () => {
     return (
       <div>
-        <span>Oct</span><input id="octave" type="number" value={this.state.currentOctave} onChange={this.handleOctaveChange} min="0" max="9"></input>
-        <span>Skip</span><input id="noteSkip" type="number" value={this.state.noteSkip} onChange={this.handleNoteSkipChange} min="1" max="32"></input> 
+        <span>Oct</span>
+        <input
+          id="octave"
+          type="number"
+          value={this.state.currentOctave}
+          onChange={this.handleOctaveChange}
+          min="0"
+          max="9"
+        />
+        <span>Skip</span>
+        <input
+          id="noteSkip"
+          type="number"
+          value={this.state.noteSkip}
+          onChange={this.handleNoteSkipChange}
+          min="1"
+          max="32"
+        />
       </div>
     );
   };
@@ -282,11 +326,18 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   render() {
     return (
       <TrackerWrapper>
-        <PatternWrapper currentPattern={this.state.currentPattern} setCurrentPattern={this.setCurrentPattern} />
+        <PatternWrapper
+          currentPattern={this.state.currentPattern}
+          setCurrentPattern={this.setCurrentPattern}
+        />
         <GraphWrapper />
         <NoteEditor>
           {this.props.loadedSong.map(this.renderTrack as any)}
-          <AddInstrumentButton type="button" value="+" onClick={this.handleAddInstrumentClick} />
+          <AddInstrumentButton
+            type="button"
+            value="+"
+            onClick={this.handleAddInstrumentClick}
+          />
         </NoteEditor>
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
         <PlaybackHandler />
@@ -295,10 +346,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       </TrackerWrapper>
     );
   }
-  
+
   setCurrentPattern = (value: number) => {
-    this.setState({currentPattern: value});
-  }
+    this.setState({ currentPattern: value });
+  };
 }
 
 const mapStateToProps = (state: RootState) => ({
@@ -308,7 +359,8 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  addInstrument: (instrument: Instrument) => dispatch(addInstrument({ instrument })),
+  addInstrument: (instrument: Instrument) =>
+    dispatch(addInstrument({ instrument })),
   loadSong: (song: Song) => dispatch(setSong(song)),
   editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
   togglePlayback: () => dispatch(togglePlayback()),

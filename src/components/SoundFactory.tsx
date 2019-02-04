@@ -6,21 +6,24 @@ const SoundFactoryContainer = styled.div`
 `;
 
 export default class SoundFactory extends React.Component {
-  state = {value: ""};
+  state = { value: '' };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({value: event.target.value});
-  }
+    this.setState({ value: event.target.value });
+  };
   addSine = () => {
-    this.setState({value: this.state.value + "+Math.sin(2*2)"});
-  }
+    this.setState({ value: this.state.value + '+Math.sin(2*2)' });
+  };
   render() {
     return (
       <div>
         <button onClick={this.addSine}>sin(ft)</button>
-        <input type="text" value={this.state.value} onChange={this.handleChange}></input>
+        <input
+          type="text"
+          value={this.state.value}
+          onChange={this.handleChange}
+        />
       </div>
     );
   }
 }
-

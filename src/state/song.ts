@@ -4,7 +4,8 @@ import { DeepReadonly } from 'utility-types';
 import { Song, Instrument } from '../types/instrument';
 import produce from 'immer';
 
-const strReplace = (str: string, index: number, character: string) => str.slice(0, index) + character + str.slice(index + 1);
+const strReplace = (str: string, index: number, character: string) =>
+  str.slice(0, index) + character + str.slice(index + 1);
 
 export interface AddInstrument {
   instrument: Instrument;
@@ -14,22 +15,28 @@ export interface EditSong {
   rowIndex: number;
   patternIndex: number;
   note: string;
-};
+}
 
 export interface AddPattern {
-  trackId: number,
-  notes: string,
+  trackId: number;
+  notes: string;
 }
 
 export interface EditPattern {
-  trackId: number,
-  patternId: number,
-  value: number
+  trackId: number;
+  patternId: number;
+  value: number;
 }
 
-export const addInstrument = createStandardAction('song/ADD_INSTRUMENT')<AddInstrument>();
-export const addPattern = createStandardAction('song/ADD_PATTERN')<AddPattern>();
-export const editPattern = createStandardAction('song/EDIT_PATTERN')<EditPattern>();
+export const addInstrument = createStandardAction('song/ADD_INSTRUMENT')<
+  AddInstrument
+>();
+export const addPattern = createStandardAction('song/ADD_PATTERN')<
+  AddPattern
+>();
+export const editPattern = createStandardAction('song/EDIT_PATTERN')<
+  EditPattern
+>();
 export const editSong = createStandardAction('song/EDIT_SONG')<EditSong>();
 export const setSong = createStandardAction('song/SET_SONG')<Song>();
 
@@ -55,13 +62,25 @@ export const songReducer: Reducer<SongState, SongActions> = (
         break;
       case getType(addPattern):
         draft.loaded[action.payload.trackId].notes.push(action.payload.notes);
-        draft.loaded[action.payload.trackId].patterns.push(draft.loaded[action.payload.trackId].notes.length - 1);
-      break;
-        case getType(editPattern):
-        draft.loaded[action.payload.trackId].patterns[action.payload.patternId] = action.payload.value;
+        draft.loaded[action.payload.trackId].patterns.push(
+          draft.loaded[action.payload.trackId].notes.length - 1,
+        );
+        break;
+      case getType(editPattern):
+        draft.loaded[action.payload.trackId].patterns[
+          action.payload.patternId
+        ] = action.payload.value;
         break;
       case getType(editSong):
-        draft.loaded[action.payload.trackIndex].notes[action.payload.patternIndex] = strReplace(draft.loaded[action.payload.trackIndex].notes[action.payload.patternIndex], action.payload.rowIndex, action.payload.note);
+        draft.loaded[action.payload.trackIndex].notes[
+          action.payload.patternIndex
+        ] = strReplace(
+          draft.loaded[action.payload.trackIndex].notes[
+            action.payload.patternIndex
+          ],
+          action.payload.rowIndex,
+          action.payload.note,
+        );
         break;
       case getType(setSong):
         draft.loaded = action.payload;

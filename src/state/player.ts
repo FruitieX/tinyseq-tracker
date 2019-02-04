@@ -14,12 +14,12 @@ export type PlaybackState = 'playing' | 'paused';
 
 export type PlayerState = DeepReadonly<{
   playback: PlaybackState;
-  playbackStarted: number; // unix timestamp in ms
+  playbackStarted: Date; // unix timestamp in ms
 }>;
 
 const initialState: PlayerState = {
   playback: 'paused',
-  playbackStarted: new Date().getTime(),
+  playbackStarted: new Date(),
 };
 
 export const playerReducer: Reducer<PlayerState, PlayerActions> = (
@@ -33,6 +33,7 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
           draft.playback = 'paused';
         } else {
           draft.playback = 'playing';
+          draft.playbackStarted = new Date();
         }
         break;
     }

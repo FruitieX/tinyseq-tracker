@@ -12,7 +12,14 @@ const PlaybackToolbar = styled.div`
 interface PlaybackProps {
   playback: PlaybackState;
   togglePlayback: () => void;
+  playbackStarted: number;
 }
+
+const padNumber = (num: number, pad: number, c?: string): string => {
+  c = c || '0';
+  let n = num.toString();
+  return n.length >= pad ? n : new Array(pad - n.length + 1).join(c) + n;
+};
 
 export class PlaybackHandler extends React.Component<PlaybackProps> {
   render() {
@@ -22,6 +29,11 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
           {this.props.playback === 'playing' ? '❚❚' : '▶'}
         </button>
         <button id="stop">■</button>
+        <span>
+          {padNumber(this.props.playbackStarted.getMinutes(), 2)}:
+          {padNumber(this.props.playbackStarted.getSeconds(), 2)}:
+          {padNumber(this.props.playbackStarted.getMilliseconds(), 3)}
+        </span>
       </PlaybackToolbar>
     );
   }

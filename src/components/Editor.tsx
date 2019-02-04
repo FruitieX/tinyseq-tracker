@@ -188,40 +188,49 @@ export class Editor extends React.Component<EditorProps, EditorState> {
           case 'KeyH':
           case 'KeyU':
           case 'KeyJ':
-            // if (this.instrumentRef.current)
-            //   this.instrumentRef.current
-            //     // @ts-ignore: this is fine
-            //     .getWrappedInstance()
-            //     .playNote(
-            //       35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave,
-            //     );
+            const editMode = false;
 
-            this.props.editSong({
-              trackIndex: draft.selectedTrack,
-              rowIndex: draft.selectedRow,
-              patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
-                draft.currentPattern
-              ] - 1,
-              note: String.fromCharCode(
-                35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave,
-              ),
-            });
-            draft.selectedRow = mod(
-              draft.selectedRow + draft.noteSkip,
-              this.props.loadedSong[draft.selectedTrack].notes[
-                this.props.loadedSong[draft.selectedTrack].patterns[
-                  draft.currentPattern
-                ] - 1
-              ].length,
-            );
+            if (editMode) {
+              this.props.editSong({
+                trackIndex: draft.selectedTrack,
+                rowIndex: draft.selectedRow,
+                patternIndex:
+                  this.props.loadedSong[draft.selectedTrack].patterns[
+                    draft.currentPattern
+                  ] - 1,
+                note: String.fromCharCode(
+                  35 + keyboard2noteMapping[ev.code] + 12 * draft.currentOctave,
+                ),
+              });
+              draft.selectedRow = mod(
+                draft.selectedRow + draft.noteSkip,
+                this.props.loadedSong[draft.selectedTrack].notes[
+                  this.props.loadedSong[draft.selectedTrack].patterns[
+                    draft.currentPattern
+                  ] - 1
+                ].length,
+              );
+            } else {
+              // Play notes instantly
+              if (this.instrumentRef.current)
+                this.instrumentRef.current
+                  // @ts-ignore: this is fine
+                  .getWrappedInstance()
+                  .playNote(
+                    35 +
+                      keyboard2noteMapping[ev.code] +
+                      12 * draft.currentOctave,
+                  );
+            }
             break;
           case 'Backspace':
             this.props.editSong({
               trackIndex: draft.selectedTrack,
               rowIndex: draft.selectedRow,
-              patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
-                draft.currentPattern
-              ] - 1,
+              patternIndex:
+                this.props.loadedSong[draft.selectedTrack].patterns[
+                  draft.currentPattern
+                ] - 1,
               note: '!',
             });
             draft.selectedRow = mod(
@@ -237,9 +246,10 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             this.props.editSong({
               trackIndex: draft.selectedTrack,
               rowIndex: draft.selectedRow,
-              patternIndex: this.props.loadedSong[draft.selectedTrack].patterns[
-                draft.currentPattern
-              ] - 1,
+              patternIndex:
+                this.props.loadedSong[draft.selectedTrack].patterns[
+                  draft.currentPattern
+                ] - 1,
               note: ' ',
             });
             draft.selectedRow = mod(

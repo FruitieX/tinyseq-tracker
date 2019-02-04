@@ -150,18 +150,18 @@ export const playNote = (
   node.parameters.get('n').setValueAtTime(t, t);
 
   // Attack
-  ADSR(node.parameters.get('e'), 0, instrument.volume, instrument.attack);
+  // ADSR(node.parameters.get('e'), 0, instrument.volume, t + instrument.attack);
 
   // Decay
   ADSR(
     node.parameters.get('e'),
     instrument.volume,
     instrument.volume * instrument.sustain,
-    instrument.decay,
+    t + instrument.attack + instrument.decay,
   );
 
   // Sustain
-  ADSR(node.parameters.get('e'), instrument.volume * instrument.sustain);
+  // ADSR(node.parameters.get('e'), instrument.volume * instrument.sustain);
 };
 
 export class InstrumentManager extends React.Component<Props, State> {

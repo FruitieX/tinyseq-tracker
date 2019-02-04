@@ -23,6 +23,7 @@ const NoteEditor = styled.div`
   flex-direction: row;
   user-select: none;
   border: solid 1px #fff;
+  overflow: auto;
   .track-name {
     text-align: center;
     margin-bottom: 10px;
@@ -36,14 +37,14 @@ const NoteToolbar = styled.div`
 
 const TrackerWrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 6fr 3fr;
+  grid-template-columns: 15vw 70vw 15vw;
   grid-template-rows: 150px 6fr 50px 2fr;
   height: 100vh;
   grid-template-areas:
     'playback-toolbar header right-top'
-    'panel main-editor right-top'
+    'panel main-editor  right-top'
     'panel note-toolbar right-top'
-    'panel footer right-bottom';
+    'info  footer       right-bottom';
 `;
 
 const AddInstrumentButton = styled.input`

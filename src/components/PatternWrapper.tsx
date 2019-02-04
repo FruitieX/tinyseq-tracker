@@ -14,10 +14,11 @@ const PatternContainer = styled.div`
   input {
     border: 1px solid gray;
   }
-`;
+  `;
   
   const PatternArea = styled.div`
   grid-area: panel;
+  overflow: auto;
   h3 {
     text-align: center;
   }

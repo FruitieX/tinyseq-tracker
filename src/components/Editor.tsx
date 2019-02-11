@@ -40,6 +40,11 @@ const NoteEditor = styled.div`
     text-align: center;
     margin-bottom: 10px;
   }
+
+  &:focus {
+    border: solid 1px #f00;
+    outline: none;
+  }
 `;
 
 const NoteToolbar = styled.div`
@@ -115,6 +120,7 @@ interface EditorState {
 
 export class Editor extends React.Component<EditorProps, EditorState> {
   instrumentRef = React.createRef<UnwrappedInstrumentManager>();
+  editorRef = React.createRef<HTMLDivElement>();
 
   constructor(props: EditorProps) {
     super(props);
@@ -302,7 +308,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
   componentDidMount() {
     this.props.loadSong(parseSong(song as TSSong));
-    document.addEventListener('keydown', this.handleKeyDown);
+    this.editorRef.current!.addEventListener('keydown', this.handleKeyDown);
   }
 
   componentWillUnmount() {
@@ -356,7 +362,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
           setCurrentPattern={this.setCurrentPattern}
         />
         <GraphWrapper />
-        <NoteEditor>
+        <NoteEditor innerRef={this.editorRef} tabIndex={0}>
           {this.props.loadedSong.map(this.renderTrack as any)}
           <AddInstrumentButton
             type="button"
@@ -366,7 +372,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         </NoteEditor>
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
         <PlaybackHandler />
-        <SoundFactory />
+        <SoundFactory selectedTrack={this.state.selectedTrack} />
         <InstrumentManager ref={this.instrumentRef} />
       </TrackerWrapper>
     );

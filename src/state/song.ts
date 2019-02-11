@@ -10,12 +10,28 @@ const strReplace = (str: string, index: number, character: string) =>
 export interface AddInstrument {
   instrument: Instrument;
 }
-export interface EditSong {
+
+export interface EditSongNote {
   trackIndex: number;
   rowIndex: number;
   patternIndex: number;
   note: string;
 }
+
+export interface EditSongWaveform {
+  trackIndex: number;
+  waveform: string;
+}
+
+export type EditSong = EditSongNote | EditSongWaveform;
+
+export const isEditSongNote = (action: EditSong): action is EditSongNote =>
+  (<EditSongNote>action).note !== undefined;
+
+export const isEditSongWaveform = (
+  action: EditSong,
+): action is EditSongWaveform =>
+  (<EditSongWaveform>action).waveform !== undefined;
 
 export interface AddPattern {
   trackId: number;
@@ -72,15 +88,25 @@ export const songReducer: Reducer<SongState, SongActions> = (
         ] = action.payload.value;
         break;
       case getType(editSong):
-        draft.loaded[action.payload.trackIndex].notes[
-          action.payload.patternIndex
-        ] = strReplace(
+        // Edit notes
+        if (isEditSongNote(action.payload)) {
           draft.loaded[action.payload.trackIndex].notes[
             action.payload.patternIndex
-          ],
-          action.payload.rowIndex,
-          action.payload.note,
-        );
+          ] = strReplace(
+            draft.loaded[action.payload.trackIndex].notes[
+              action.payload.patternIndex
+            ],
+            action.payload.rowIndex,
+            action.payload.note,
+          );
+        }
+
+        // Edit waveform
+        if (isEditSongWaveform(action.payload)) {
+          draft.loaded[action.payload.trackIndex].waveform =
+            action.payload.waveform;
+        }
+
         break;
       case getType(setSong):
         draft.loaded = action.payload;

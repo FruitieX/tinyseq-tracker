@@ -2,7 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { RootState } from '../state/rootReducer';
 import { Dispatch } from 'redux';
-import { togglePlayback, PlaybackState, resetPlayback } from '../state/player';
+import {
+  togglePlayback,
+  PlaybackState,
+  resetPlayback,
+  PlayerState,
+} from '../state/player';
 import { connect } from 'react-redux';
 
 const PlaybackToolbar = styled.div`
@@ -23,7 +28,7 @@ interface PlaybackProps {
   playback: PlaybackState;
   togglePlayback: () => void;
   resetPlayback: () => void;
-  playbackStarted: Date;
+  playbackStarted: PlayerState['playbackStarted'];
   timeSinceStart: number;
 }
 
@@ -70,10 +75,10 @@ const mapStateToProps = (state: RootState) => ({
   timeSinceStart: state.player.timeSinceStart,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  togglePlayback: () => dispatch(togglePlayback()),
-  resetPlayback: () => dispatch(resetPlayback()),
-});
+const mapDispatchToProps = {
+  togglePlayback,
+  resetPlayback,
+};
 
 export default connect(
   mapStateToProps,

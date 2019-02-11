@@ -14,11 +14,11 @@ export type PlayerActions = ActionType<typeof actions>;
 
 export type PlaybackState = 'playing' | 'paused';
 
-export type PlayerState = DeepReadonly<{
+export type PlayerState = {
   playback: PlaybackState;
   playbackStarted: Date; // unix timestamp in ms
   timeSinceStart: number;
-}>;
+};
 
 const initialState: PlayerState = {
   playback: 'paused',

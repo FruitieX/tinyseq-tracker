@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { addPattern, editPattern } from '../state/song';
 import { Song, Instrument, parseInstrument } from '../types/instrument';
 import { DeepReadonly } from 'utility-types';
+import { changePattern } from '../state/editor';
 
 const PatternContainer = styled.div`
   display: grid;
@@ -52,14 +53,14 @@ const AddPatternInput = styled.input<InputProps>`
 
 interface Props {
   loadedSong: DeepReadonly<Song>;
-  addPattern: (trackId: number, notes: string) => void;
-  editPattern: (trackId: number, patternId: number, value: number) => void;
+  addPattern: typeof addPattern;
+  editPattern: typeof editPattern;
   currentPattern: number;
-  setCurrentPattern: (value: number) => void;
+  changePattern: typeof changePattern;
 }
 
 class PatternWrapper extends React.Component<Props> {
-  handleChange = (trackId: number, index: number) => (
+  handleChange = (trackId: number, patternId: number) => (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     if (parseInt(event.target.value) != NaN) {
@@ -68,23 +69,27 @@ class PatternWrapper extends React.Component<Props> {
           parseInt(event.target.value) <
           this.props.loadedSong[trackId].patterns.length
         ) {
-          this.props.editPattern(trackId, index, parseInt(event.target.value));
+          this.props.editPattern({
+            trackId,
+            patternId,
+            value: parseInt(event.target.value),
+          });
         } else {
           // add empty pattern to last place
-          this.props.addPattern(
+          this.props.addPattern({
             trackId,
-            Array(
+            notes: Array(
               this.props.loadedSong[trackId].notes[
                 this.props.loadedSong[trackId].notes.length - 1
               ].length + 1,
             ).join(' '),
-          );
+          });
           // put the current input field value to the created pattern index value
-          this.props.editPattern(
+          this.props.editPattern({
             trackId,
-            index,
-            this.props.loadedSong[trackId].patterns.length,
-          );
+            patternId,
+            value: this.props.loadedSong[trackId].patterns.length,
+          });
         }
       }
     }
@@ -95,20 +100,20 @@ class PatternWrapper extends React.Component<Props> {
   ) => {
     if (event.shiftKey) {
       // copy the previous pattern to last place
-      this.props.addPattern(
+      this.props.addPattern({
         trackId,
-        this.props.loadedSong[trackId].notes[this.props.currentPattern],
-      );
+        notes: this.props.loadedSong[trackId].notes[this.props.currentPattern],
+      });
     } else {
       // add empty pattern to last place
-      this.props.addPattern(
+      this.props.addPattern({
         trackId,
-        Array(
+        notes: Array(
           this.props.loadedSong[trackId].notes[
             this.props.loadedSong[trackId].notes.length - 1
           ].length + 1,
         ).join(' '),
-      );
+      });
     }
   };
 
@@ -118,7 +123,7 @@ class PatternWrapper extends React.Component<Props> {
     event: React.MouseEvent<HTMLInputElement>,
   ) => {
     // set current pattern to the pattern index that that was clicked on
-    this.props.setCurrentPattern(patternIndex);
+    this.props.changePattern({ pattern: patternIndex });
   };
 
   renderTrack = (instrument: DeepReadonly<Instrument>, trackId: number) => {
@@ -165,25 +170,14 @@ class PatternWrapper extends React.Component<Props> {
 
 const mapStateToProps = (state: RootState) => ({
   loadedSong: state.song.loaded,
+  currentPattern: state.editor.pattern,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  editPattern: (trackId: number, patternId: number, value: number) =>
-    dispatch(
-      editPattern({
-        trackId,
-        patternId,
-        value,
-      }),
-    ),
-  addPattern: (trackId: number, notes: string) =>
-    dispatch(
-      addPattern({
-        trackId,
-        notes,
-      }),
-    ),
-});
+const mapDispatchToProps = {
+  editPattern,
+  addPattern,
+  changePattern,
+};
 
 export default connect(
   mapStateToProps,

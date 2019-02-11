@@ -12,7 +12,7 @@ const SoundFactoryContainer = styled.div`
 interface SoundFactoryProps {
   selectedTrack: number;
   loadedSong: SongState['loaded'];
-  editSong: (editSongParams: EditSong) => void;
+  editSong: typeof editSong;
 }
 
 export class SoundFactory extends React.Component<SoundFactoryProps> {
@@ -50,11 +50,12 @@ export class SoundFactory extends React.Component<SoundFactoryProps> {
 
 const mapStateToProps = (state: RootState) => ({
   loadedSong: state.song.loaded,
+  selectedTrack: state.editor.track,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
-});
+const mapDispatchToProps = {
+  editSong,
+};
 
 export default connect(
   mapStateToProps,

@@ -2,8 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { RootState } from '../state/rootReducer';
 import { connect } from 'react-redux';
-import { SongState, EditSong, editSong } from '../state/song';
-import { Dispatch } from 'redux';
+import { SongState, editSong } from '../state/song';
 
 const SoundFactoryContainer = styled.div`
   grid-area: right-top;

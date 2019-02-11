@@ -9,7 +9,6 @@ import PlaybackHandler from './PlaybackToolbar';
 import { connect } from 'react-redux';
 import { RootState } from '../state/rootReducer';
 import { setSong } from '../state/song';
-import { Dispatch } from 'redux';
 import { DeepReadonly } from 'utility-types';
 import { togglePlayback, updateTime, PlaybackState } from '../state/player';
 import PatternWrapper from './PatternWrapper';
@@ -115,7 +114,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   };
 
   renderToolbar = () => {
-    const { currentOctave, noteSkip, setNoteSkip } = this.props;
+    const { currentOctave, noteSkip } = this.props;
 
     return (
       <div>

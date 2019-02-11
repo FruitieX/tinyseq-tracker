@@ -2,14 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { DeepReadonly } from 'utility-types';
 import { Song, Instrument, defaultInstrument } from '../types/instrument';
-import { EditSong, addInstrument, editSong } from '../state/song';
+import { addInstrument, editSong } from '../state/song';
 import { Track } from './Track';
-import produce from 'immer';
-import { mod } from '../utils/modulo';
 import { keyboard2noteMapping } from '../utils/constants';
 import { connect } from 'react-redux';
-import { togglePlayback } from '../state/player';
-import { Dispatch } from 'redux';
 import { RootState } from '../state/rootReducer';
 import { changeRow, changeTrack } from '../state/editor';
 

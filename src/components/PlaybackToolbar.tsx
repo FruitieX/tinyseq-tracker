@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { RootState } from '../state/rootReducer';
-import { Dispatch } from 'redux';
 import {
   togglePlayback,
   PlaybackState,

@@ -2,6 +2,7 @@ import { createStandardAction, ActionType, getType } from 'typesafe-actions';
 import { Reducer } from 'redux';
 import { DeepReadonly } from 'utility-types';
 import produce from 'immer';
+
 import { mod } from '../utils/modulo';
 
 interface RowOffset {

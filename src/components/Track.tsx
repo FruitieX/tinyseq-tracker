@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Instrument } from '../types/instrument';
-import { string } from 'prop-types';
 
 const TrackContainer = styled.div`
   padding-left: 16px;

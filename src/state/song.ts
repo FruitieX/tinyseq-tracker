@@ -1,8 +1,9 @@
 import { createStandardAction, ActionType, getType } from 'typesafe-actions';
 import { Reducer } from 'redux';
 import { DeepReadonly } from 'utility-types';
-import { Song, Instrument } from '../types/instrument';
 import produce from 'immer';
+
+import { Song, Instrument } from '../types/instrument';
 
 const strReplace = (str: string, index: number, character: string) =>
   str.slice(0, index) + character + str.slice(index + 1);

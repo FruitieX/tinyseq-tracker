@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import * as React from 'react';
 import { RootState } from '../state/rootReducer';
-import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { addPattern, editPattern } from '../state/song';
 import { Song, Instrument, parseInstrument } from '../types/instrument';

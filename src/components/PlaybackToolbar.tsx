@@ -43,6 +43,12 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
     this.props.resetPlayback();
   };
 
+  renderTime(time: number): string {
+    return padNumber(Math.floor(time / 60000), 2) + ":"
+      + padNumber(Math.floor(time / 1000) % 60, 2) + ":"
+      + padNumber(Math.floor(time / 10) % 100, 2)
+  }
+
   render() {
     return (
       <PlaybackToolbar>
@@ -59,9 +65,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
           tabIndex={-1}
         />
         <span>
-          {padNumber(Math.floor(this.props.timeSinceStart / 60000), 2)}:
-          {padNumber(Math.floor(this.props.timeSinceStart / 1000) % 60, 2)}:
-          {padNumber(Math.floor(this.props.timeSinceStart / 10) % 100, 2)}
+          {this.renderTime(this.props.timeSinceStart)}
         </span>
       </PlaybackToolbar>
     );

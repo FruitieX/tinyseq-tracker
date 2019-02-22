@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { DeepReadonly } from 'utility-types';
-import { Song, Instrument, defaultInstrument } from '../types/instrument';
+import { Song, Instrument, defaultInstrument, timeFromBeginning } from '../types/instrument';
 import { addInstrument, editSong } from '../state/song';
 import { Track } from './Track';
 import { keyboard2noteMapping } from '../utils/constants';
 import { connect } from 'react-redux';
 import { RootState } from '../state/rootReducer';
 import { changeRow, changeTrack } from '../state/editor';
+import { setTime } from '../state/player';
 
 const Wrapper = styled.div`
   grid-area: main-editor;
@@ -52,6 +53,8 @@ interface EditorProps {
   pattern: number;
   noteSkip: number;
   octave: number;
+
+  setTime: typeof setTime;
 }
 
 class NoteEditor extends React.PureComponent<EditorProps> {
@@ -75,6 +78,7 @@ class NoteEditor extends React.PureComponent<EditorProps> {
       noteSkip,
       octave,
       loadedSong,
+      setTime,
     } = this.props;
 
     const activeTrack = loadedSong[track];
@@ -85,22 +89,28 @@ class NoteEditor extends React.PureComponent<EditorProps> {
 
     const numTracks = this.props.loadedSong.length;
 
+    const patternNotes = loadedSong.map(t => t.notes[t.patterns[pattern] - 1])
+
     switch (ev.code) {
       case 'ArrowDown':
         ev.stopPropagation();
-        return changeRow({ offset: 1, numRows });
+        changeRow({ offset: 1, numRows});
+        setTime(timeFromBeginning(loadedSong,track, pattern, row));
+        return;
 
       case 'ArrowUp':
         ev.stopPropagation();
-        return changeRow({ offset: -1, numRows });
-
+        changeRow({ offset: -1, numRows });
+        setTime(timeFromBeginning(loadedSong,track, pattern, row));
+        return;
+        
       case 'ArrowLeft':
         ev.stopPropagation();
-        return changeTrack({ offset: -1, numTracks });
+        return changeTrack({ offset: -1, numTracks: numTracks, song: patternNotes });
 
       case 'ArrowRight':
         ev.stopPropagation();
-        return changeTrack({ offset: 1, numTracks });
+        return changeTrack({ offset: 1, numTracks: numTracks, song: patternNotes });
 
       case 'Backspace':
         ev.stopPropagation();
@@ -219,6 +229,8 @@ const mapDispatchToProps = {
 
   changeRow,
   changeTrack,
+
+  setTime,
 };
 
 export default connect(

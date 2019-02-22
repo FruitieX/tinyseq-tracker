@@ -50,9 +50,9 @@ interface EditorProps {
   playback: PlaybackState;
   togglePlayback: () => void;
   updateTime: () => void;
-
   currentOctave: number;
   noteSkip: number;
+  setTime: (time: number) => void;
 }
 
 interface EditorState {
@@ -92,6 +92,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   };
 
   componentDidMount() {
+    // console.log(this.props);
     const { setSong } = this.props;
     console.log('there', setSong);
     setSong(parseSong(song as TSSong));
@@ -169,6 +170,7 @@ const mapDispatchToProps = {
   updateTime,
   setOctave,
   setNoteSkip,
+  // editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
 };
 
 export default connect(

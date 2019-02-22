@@ -4,6 +4,7 @@ import { DeepReadonly } from 'utility-types';
 import produce from 'immer';
 
 import { mod } from '../utils/modulo';
+import { timeFromBeginning, Song, Instrument } from '../types/instrument';
 
 interface RowOffset {
   offset: number;
@@ -23,6 +24,7 @@ export const changeRow = createStandardAction('editor/CHANGE_ROW')<ChangeRow>();
 interface TrackOffset {
   offset: number;
   numTracks: number;
+  song: any;
 }
 interface TrackValue {
   value: number;
@@ -96,6 +98,7 @@ export const editorReducer: Reducer<EditorState, EditorActions> = (
         } else {
           draft.row = mod(state.row + payload.offset, payload.numRows);
         }
+        // this.props.setTime(timeFromBeginning(this.props.loadedSong, draft.track, draft.pattern, draft.row));
 
         break;
       }
@@ -107,8 +110,13 @@ export const editorReducer: Reducer<EditorState, EditorActions> = (
           draft.track = payload.value;
         } else {
           draft.track = mod(state.track + payload.offset, payload.numTracks);
-        }
 
+          // if the current track selection does not contain notes in this pattern, go to the next track that contains notes
+          let i = (payload.offset > 0 ? 1 : -1);
+          while (payload.song[draft.track] === undefined) {
+            draft.track = mod(state.track + payload.offset + (i += (payload.offset > 0 ? 1 : -1)), payload.numTracks);
+          }
+        }
         break;
       }
 

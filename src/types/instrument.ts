@@ -1,3 +1,5 @@
+import { _DeepReadonlyArray } from "utility-types/dist/mapped-types";
+
 type WaveformFunction = string;
 type Notes = string[];
 type Patterns = number[];
@@ -38,6 +40,33 @@ export interface Instrument {
   decay: Decay;
   sustain: Sustain;
   release: Release;
+  
+}
+
+export const patternLength = (notes: String, secsPerRow: number): number => {
+  // console.log(notes, secsPerRow);
+  if (notes === undefined) return 0;
+  return notes.length * secsPerRow * 1000;
+}
+
+export const timeFromBeginning = (song: _DeepReadonlyArray<Instrument>, trackIndex: number, patternIndex: number, noteIndex: number): number => {
+  let time = 0;
+  let i = song[trackIndex];
+  // add the time from previous patterns
+  for (let p = 0; p < patternIndex; p++) {
+    let pat = i.patterns[p];
+    // if pat = 0, then the current pattern in this track is empty.
+    // in this case, find the longest pattern from the other instruments (current patternIndex)
+    if (pat === 0) {
+      let maxLengths = song.map(i => patternLength(i.notes[i.patterns[p] - 1], i.rowDuration));
+      time += Math.max(...maxLengths);
+    } else {
+      time += patternLength(i.notes[pat - 1], i.rowDuration);
+}
+  }
+  // calculate time in current pattern
+  time += noteIndex * i.rowDuration * 1000;
+  return time;
 }
 
 export type Song = Instrument[];
@@ -70,7 +99,7 @@ export const parseInstrument = (tsInstrument: TSInstrument): Instrument => ({
 export const defaultInstrument: Instrument = {
   waveform: 'Math.random()',
   notes: ['                '],
-  patterns: [0],
+  patterns: [1],
   rowDuration: 0.5,
   rowsPerPattern: 32,
   transpose: 0,

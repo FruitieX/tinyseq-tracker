@@ -7,8 +7,10 @@ export const togglePlayback = createStandardAction(
 )();
 export const resetPlayback = createStandardAction('playback/RESET_PLAYBACK')();
 export const updateTime = createStandardAction('playback/UPDATE_TIME')();
+export const setTime = createStandardAction('playback/SET_TIME')<number>();
 
-const actions = { togglePlayback, resetPlayback, updateTime };
+
+const actions = { togglePlayback, resetPlayback, updateTime, setTime };
 export type PlayerActions = ActionType<typeof actions>;
 
 export type PlaybackState = 'playing' | 'paused';
@@ -50,8 +52,11 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
       case getType(updateTime):
         draft.timeSinceStart =
           new Date().getTime() - draft.playbackStarted.getTime();
-
         // console.log("updating time to " + draft.timeSinceStart);
+        break;
+      case getType(setTime):
+        // console.log(action.payload);
+        draft.timeSinceStart = action.payload;
         break;
     }
   });

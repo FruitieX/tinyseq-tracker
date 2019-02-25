@@ -64,6 +64,7 @@ export function mstime2MMSSms(time: number): string {
 
 interface TimerProps {
   startTime: number;
+  timeSinceStart: number;
   playerState: PlaybackState;
 }
 
@@ -76,9 +77,13 @@ export class Timer extends React.Component<TimerProps> {
   
     if (currentRef) {
       // console.log("Setting time");
-      currentRef.innerHTML = mstime2MMSSms(
-        (new Date().getTime() - this.props.startTime),
-      );
+      if (this.props.timeSinceStart === 0 && this.props.playerState === 'paused')
+        currentRef.innerHTML = "00:00:00";
+      else {
+        currentRef.innerHTML = mstime2MMSSms(
+          (new Date().getTime() - this.props.startTime),
+        );
+      }
       if (this.props.playerState === 'playing')
         // only request new animation frame when playing
         requestAnimationFrame(this.updateTimer);
@@ -87,31 +92,15 @@ export class Timer extends React.Component<TimerProps> {
 
   shouldComponentUpdate() {
 
-    if (this.props.playerState === 'playing') {
-      // cancelAnimationFrame(this.animationFrameLoop);
-      // console.log("Animation stopped");
-    } else {
+    if (this.props.playerState === 'paused') {
       // the state updates somehow inverted. Therefore, the playing and paused are switched 
       this.animationFrameLoop = requestAnimationFrame(this.updateTimer);
-      // console.log("Started Animationframe ID", this.animationFrameLoop);
     }
-    // return (this.props.playerState === 'playing');
     return false;
-  }
-
-  componentDidMount() {
-    // console.log("Starting timer");
-    // this.animationFrameLoop = requestAnimationFrame(this.updateTimer.bind(this));
-  }
-
-  componentWillUnmount() {
-    // console.log("Stopping timer");
-    // cancelAnimationFrame(this.animationFrameLoop);
   }
 
   render() {
     return <span ref={this.ref} className={"time-display"}>00:00:00</span>;
-    // return <div ref={this.ref}>{mstime2MMSSms( (new Date().getTime() - this.props.startTime) ) }</div>;
   }
 }
 
@@ -127,7 +116,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
         <PlayButton onClick={this.props.togglePlayback}>{this.props.playback === 'playing' ? '❚❚' : '▶'}</PlayButton>
         <StopButton onClick={this.stopPlayback}>■</StopButton>
         <span>
-          <Timer startTime={this.props.playbackStarted.getTime()} playerState={this.props.playback} />
+          <Timer startTime={this.props.playbackStarted.getTime()} timeSinceStart={this.props.timeSinceStart} playerState={this.props.playback} />
         </span>
       </PlaybackToolbar>
     );

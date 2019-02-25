@@ -42,7 +42,7 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
           draft.playback = 'playing';
           draft.playbackStarted = new Date(
             new Date().getTime() - draft.timeSinceStart,
-            );
+          );
           console.log("Playback started");
         }
         break;

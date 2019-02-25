@@ -98,8 +98,6 @@ export const editorReducer: Reducer<EditorState, EditorActions> = (
         } else {
           draft.row = mod(state.row + payload.offset, payload.numRows);
         }
-        // this.props.setTime(timeFromBeginning(this.props.loadedSong, draft.track, draft.pattern, draft.row));
-
         break;
       }
 

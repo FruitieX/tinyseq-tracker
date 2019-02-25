@@ -69,15 +69,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
     switch (ev.code) {
       case 'Space': // Spacebar
-        ev.stopPropagation();
         this.props.togglePlayback();
-        if (this.props.playback === 'paused') {
-          this.timerHandle = window.setInterval(this.props.updateTime, 10);
-        } else {
-          window.clearInterval(this.timerHandle);
-        }
         break;
-
+        
       // keyboard piano
       default:
         const note = keyboard2noteMapping[ev.code];

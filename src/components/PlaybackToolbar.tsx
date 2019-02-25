@@ -11,16 +11,19 @@ import { connect } from 'react-redux';
 
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
+  display: flex;
 `;
 
 const PlayButton = styled.input`
-  width: 70px;
-  height: 30px;
-`;
+  min-width: 70px;
+  max-height: 30px;
+  margin: 0 5px;
+  `;
 
 const StopButton = styled.input`
-  width: 25px;
-  height: 25px;
+  min-width: 30px;
+  max-height: 30px;
+  margin: 0 5px;
 `;
 
 interface PlaybackProps {
@@ -37,17 +40,70 @@ const padNumber = (num: number, pad: number, c?: string): string => {
   return n.length >= pad ? n : new Array(pad - n.length + 1).join(c) + n;
 };
 
+export function mstime2MMSSms(time: number): string {
+  return padNumber(Math.floor(time / 60000), 2) + ":"
+    + padNumber(Math.floor(time / 1000) % 60, 2) + ":"
+    + padNumber(Math.floor(time / 10) % 100, 2)
+}
+
+interface TimerProps {
+  startTime: number;
+  playerState: PlaybackState;
+}
+
+export class Timer extends React.Component<TimerProps> {
+  animationFrameLoop: number = 0;
+  ref: React.RefObject<HTMLDivElement> = React.createRef();
+
+  updateTimer = () => {
+    const currentRef = this.ref.current;
+  
+    if (currentRef) {
+      // console.log("Setting time");
+      currentRef.innerHTML = mstime2MMSSms(
+        (new Date().getTime() - this.props.startTime),
+      );
+      if (this.props.playerState === 'playing')
+        // only request new animation frame when playing
+        requestAnimationFrame(this.updateTimer);
+    }
+  }
+
+  shouldComponentUpdate() {
+
+    if (this.props.playerState === 'playing') {
+      // cancelAnimationFrame(this.animationFrameLoop);
+      // console.log("Animation stopped");
+    } else {
+      // the state updates somehow inverted. Therefore, the playing and paused are switched 
+      this.animationFrameLoop = requestAnimationFrame(this.updateTimer);
+      // console.log("Started Animationframe ID", this.animationFrameLoop);
+    }
+    // return (this.props.playerState === 'playing');
+    return false;
+  }
+
+  componentDidMount() {
+    // console.log("Starting timer");
+    // this.animationFrameLoop = requestAnimationFrame(this.updateTimer.bind(this));
+  }
+
+  componentWillUnmount() {
+    // console.log("Stopping timer");
+    // cancelAnimationFrame(this.animationFrameLoop);
+  }
+
+  render() {
+    return <div ref={this.ref}>00:00:00</div>;
+    // return <div ref={this.ref}>{mstime2MMSSms( (new Date().getTime() - this.props.startTime) ) }</div>;
+  }
+}
+
 export class PlaybackHandler extends React.Component<PlaybackProps> {
   stopPlayback = () => {
     this.props.togglePlayback();
     this.props.resetPlayback();
   };
-
-  renderTime(time: number): string {
-    return padNumber(Math.floor(time / 60000), 2) + ":"
-      + padNumber(Math.floor(time / 1000) % 60, 2) + ":"
-      + padNumber(Math.floor(time / 10) % 100, 2)
-  }
 
   render() {
     return (
@@ -65,7 +121,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
           tabIndex={-1}
         />
         <span>
-          {this.renderTime(this.props.timeSinceStart)}
+          <Timer startTime={this.props.playbackStarted.getTime()} playerState={this.props.playback} />
         </span>
       </PlaybackToolbar>
     );

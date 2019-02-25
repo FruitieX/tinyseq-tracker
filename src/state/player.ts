@@ -36,23 +36,21 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
       case getType(togglePlayback):
         if (state.playback === 'playing') {
           draft.playback = 'paused';
+          draft.timeSinceStart = new Date().getTime() - state.playbackStarted.getTime();
+          console.log("Playback paused");
         } else {
           draft.playback = 'playing';
           draft.playbackStarted = new Date(
             new Date().getTime() - draft.timeSinceStart,
-          );
+            );
+          console.log("Playback started");
         }
         break;
       case getType(resetPlayback):
-        console.log('resetting playback');
+        console.log('resetting playback time');
         draft.timeSinceStart = 0;
         draft.playbackStarted = new Date();
-        // draft.playback = 'paused';
-        break;
-      case getType(updateTime):
-        draft.timeSinceStart =
-          new Date().getTime() - draft.playbackStarted.getTime();
-        // console.log("updating time to " + draft.timeSinceStart);
+        draft.playback = 'paused';
         break;
       case getType(setTime):
         // console.log(action.payload);

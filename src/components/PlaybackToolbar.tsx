@@ -79,10 +79,11 @@ export class Timer extends React.Component<TimerProps> {
       // console.log("Setting time");
       if (this.props.timeSinceStart === 0 && this.props.playerState === 'paused')
         currentRef.innerHTML = "00:00:00";
+      else if (this.props.playerState === 'paused') {
+        currentRef.innerHTML = mstime2MMSSms(this.props.timeSinceStart);
+      }
       else {
-        currentRef.innerHTML = mstime2MMSSms(
-          (new Date().getTime() - this.props.startTime),
-        );
+        currentRef.innerHTML = mstime2MMSSms(new Date().getTime() - this.props.startTime);
       }
       if (this.props.playerState === 'playing')
         // only request new animation frame when playing
@@ -106,7 +107,7 @@ export class Timer extends React.Component<TimerProps> {
 
 export class PlaybackHandler extends React.Component<PlaybackProps> {
   stopPlayback = () => {
-    this.props.togglePlayback();
+    // this.props.togglePlayback();
     this.props.resetPlayback();
   };
 

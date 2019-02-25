@@ -12,19 +12,35 @@ import { connect } from 'react-redux';
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
   display: flex;
-`;
+  div {
+    text-align: center;
+    border: 1px solid gray;
+    cursor: pointer;
 
-const PlayButton = styled.input`
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+    
+    &:hover {
+      background-color: #555;
+    }
+  }
+`
+
+const PlayButton = styled.div`
   min-width: 70px;
-  max-height: 30px;
+  height: 25px;
   margin: 0 5px;
-  `;
-
-const StopButton = styled.input`
+  padding-top: 7px;
+`
+  
+const StopButton = styled.div`
   min-width: 30px;
-  max-height: 30px;
-  margin: 0 5px;
-`;
+  height: 23px;
+  margin: 2px 5px 0 5px;
+  padding-top: 6px;
+`
 
 interface PlaybackProps {
   playback: PlaybackState;
@@ -94,7 +110,7 @@ export class Timer extends React.Component<TimerProps> {
   }
 
   render() {
-    return <div ref={this.ref}>00:00:00</div>;
+    return <span ref={this.ref} className={"time-display"}>00:00:00</span>;
     // return <div ref={this.ref}>{mstime2MMSSms( (new Date().getTime() - this.props.startTime) ) }</div>;
   }
 }
@@ -108,18 +124,8 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
   render() {
     return (
       <PlaybackToolbar>
-        <PlayButton
-          type="button"
-          value={this.props.playback === 'playing' ? '❚❚' : '▶'}
-          onClick={this.props.togglePlayback}
-          tabIndex={-1}
-        />
-        <StopButton
-          type="button"
-          value="■"
-          onClick={this.stopPlayback}
-          tabIndex={-1}
-        />
+        <PlayButton onClick={this.props.togglePlayback}>{this.props.playback === 'playing' ? '❚❚' : '▶'}</PlayButton>
+        <StopButton onClick={this.stopPlayback}>■</StopButton>
         <span>
           <Timer startTime={this.props.playbackStarted.getTime()} playerState={this.props.playback} />
         </span>

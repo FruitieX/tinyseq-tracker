@@ -69,6 +69,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
     switch (ev.code) {
       case 'Space': // Spacebar
+        ev.stopPropagation();
         this.props.togglePlayback();
         if (this.props.playback === 'paused') {
           this.timerHandle = window.setInterval(this.props.updateTime, 10);

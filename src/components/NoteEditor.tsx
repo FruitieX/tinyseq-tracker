@@ -8,7 +8,7 @@ import { keyboard2noteMapping } from '../utils/constants';
 import { connect } from 'react-redux';
 import { RootState } from '../state/rootReducer';
 import { changeRow, changeTrack } from '../state/editor';
-import { setTime } from '../state/player';
+import { setTime, PlaybackState } from '../state/player';
 
 const Wrapper = styled.div`
   grid-area: main-editor;
@@ -55,6 +55,7 @@ interface EditorProps {
   octave: number;
 
   setTime: typeof setTime;
+  playing: PlaybackState,
 }
 
 class NoteEditor extends React.PureComponent<EditorProps> {
@@ -62,6 +63,13 @@ class NoteEditor extends React.PureComponent<EditorProps> {
 
   componentDidMount() {
     this.editorRef.current!.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentDidUpdate(prevProps: EditorProps) {
+    console.log(this.props.playing);
+    if (prevProps.row !== this.props.row && this.props.playing === 'paused') {
+      this.props.setTime(timeFromBeginning(this.props.loadedSong,this.props.track, this.props.pattern, this.props.row));
+    }
   }
 
   handleKeyDown = (ev: KeyboardEvent) => {
@@ -78,7 +86,6 @@ class NoteEditor extends React.PureComponent<EditorProps> {
       noteSkip,
       octave,
       loadedSong,
-      setTime,
     } = this.props;
 
     const activeTrack = loadedSong[track];
@@ -95,13 +102,13 @@ class NoteEditor extends React.PureComponent<EditorProps> {
       case 'ArrowDown':
         ev.stopPropagation();
         changeRow({ offset: 1, numRows});
-        setTime(timeFromBeginning(loadedSong,track, pattern, row));
+        // setTime(timeFromBeginning(loadedSong,track, pattern, row));
         return;
 
       case 'ArrowUp':
         ev.stopPropagation();
         changeRow({ offset: -1, numRows });
-        setTime(timeFromBeginning(loadedSong,track, pattern, row));
+        // setTime(timeFromBeginning(loadedSong,track, pattern, row));
         return;
         
       case 'ArrowLeft':
@@ -221,6 +228,7 @@ const mapStateToProps = (state: RootState) => ({
 
   noteSkip: state.editor.noteSkip,
   octave: state.editor.octave,
+  playing: state.player.playback,
 });
 
 const mapDispatchToProps = {

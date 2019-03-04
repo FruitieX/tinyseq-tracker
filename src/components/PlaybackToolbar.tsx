@@ -85,7 +85,6 @@ export class Timer extends React.Component<TimerProps> {
     const currentRef = this.ref.current;
 
     if (currentRef) {
-      // console.log("Setting time");
       if (
         this.props.timeSinceStart === 0 &&
         this.props.playerState === 'paused'
@@ -124,71 +123,40 @@ export class Timer extends React.Component<TimerProps> {
   }
 }
 
-interface NoteTimerProps {
-  startTime: number;
-  timeSinceStart: number;
-  playerState: PlaybackState;
-  song: Song;
-  changeRow: typeof changeRow;
-  changePattern: typeof changePattern;
-  onSongEnd: () => void;
-}
-
-export class NoteTimer extends React.Component<NoteTimerProps> {
+export class PlaybackHandler extends React.Component<PlaybackProps> {
   intervalID: number = 0;
-  secondsPerRow: number = 0.5;
 
-  updateEditor = () => {
-    let currentTime = new Date().getTime() - this.props.startTime;
+  tickNotes = () => {
+    const currentTime = new Date().getTime() - this.props.playbackStarted;
     if (currentTime >= getSongLength(this.props.song)) {
-      this.props.onSongEnd();
+      this.props.togglePlayback();
     } else {
-      // console.log(currentTime);
-      let newState = time2instrumentPos(currentTime, this.props.song, 0);
-      console.log(newState);
-      this.props.changeRow({ value: newState.row });
-      this.props.changePattern({ pattern: newState.pattern });
+      let newPos = time2instrumentPos(currentTime, this.props.song, 0);
+      this.props.changeRow({ value: newPos.row });
+      this.props.changePattern({ pattern: newPos.pattern });
     }
   };
 
-  componentDidUpdate() {
-    if (this.props.playerState === 'playing') {
-      this.intervalID = window.setInterval(
-        this.updateEditor,
-        this.props.song[0].rowDuration * 1000,
-      );
-      return true;
-    } else {
-      window.clearInterval(this.intervalID);
-    }
-    return false;
-  }
-
-  // this component does not render anything
-  render() {
-    return null;
-  }
-}
-
-export class PlaybackHandler extends React.Component<PlaybackProps> {
   stopPlayback = () => {
     this.props.resetPlayback();
   };
+
+  componentDidUpdate() {
+    if (this.props.playback === 'playing') {
+      this.intervalID = window.setInterval(
+        this.tickNotes,
+        this.props.song[0].rowDuration * 1000,
+      );
+    } else {
+      window.clearInterval(this.intervalID);
+    }
+  }
 
   render() {
     const songLength = getSongLength(this.props.song);
 
     return (
       <PlaybackToolbar>
-        <NoteTimer
-          startTime={this.props.playbackStarted}
-          timeSinceStart={this.props.timeSinceStart}
-          playerState={this.props.playback}
-          song={this.props.song}
-          changeRow={this.props.changeRow}
-          changePattern={this.props.changePattern}
-          onSongEnd={this.props.togglePlayback}
-        />
         <PlayButton onClick={this.props.togglePlayback}>
           {this.props.playback === 'paused' ? '▶' : '❚❚'}
           {/* {this.props.playback} */}

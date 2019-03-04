@@ -109,10 +109,13 @@ export const editorReducer: Reducer<EditorState, EditorActions> = (
         } else {
           draft.track = mod(state.track + payload.offset, payload.numTracks);
 
-          // if the current track selection does not contain notes in this pattern, go to the next track that contains notes
-          let i = (payload.offset > 0 ? 1 : -1);
-          while (payload.song[draft.track] === undefined) {
-            draft.track = mod(state.track + payload.offset + (i += (payload.offset > 0 ? 1 : -1)), payload.numTracks);
+          // // if the current track selection does not contain notes in this pattern, go to the next track that contains notes
+          for (
+            let i = payload.offset > 0 ? 2 : -2;
+            payload.song[draft.track] === undefined;
+            i += payload.offset > 0 ? 1 : -1
+          ) {
+            draft.track = mod(state.track + i, payload.numTracks);
           }
         }
         break;

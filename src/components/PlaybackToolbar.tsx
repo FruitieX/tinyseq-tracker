@@ -8,6 +8,7 @@ import {
   PlayerState,
 } from '../state/player';
 import { connect } from 'react-redux';
+import { Song, getSongLength } from '../types/instrument';
 
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
@@ -17,30 +18,30 @@ const PlaybackToolbar = styled.div`
     border: 1px solid gray;
     cursor: pointer;
 
-    -webkit-user-select: none; /* Safari */        
+    -webkit-user-select: none; /* Safari */
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
     user-select: none; /* Standard */
-    
+
     &:hover {
       background-color: #555;
     }
   }
-`
+`;
 
 const PlayButton = styled.div`
   min-width: 70px;
   height: 25px;
   margin: 0 5px;
   padding-top: 7px;
-`
-  
+`;
+
 const StopButton = styled.div`
   min-width: 30px;
   height: 23px;
   margin: 2px 5px 0 5px;
   padding-top: 6px;
-`
+`;
 
 interface PlaybackProps {
   playback: PlaybackState;
@@ -48,6 +49,7 @@ interface PlaybackProps {
   resetPlayback: () => void;
   playbackStarted: PlayerState['playbackStarted'];
   timeSinceStart: number;
+  song: Song;
 }
 
 const padNumber = (num: number, pad: number, c?: string): string => {
@@ -57,9 +59,13 @@ const padNumber = (num: number, pad: number, c?: string): string => {
 };
 
 export function mstime2MMSSms(time: number): string {
-  return padNumber(Math.floor(time / 60000), 2) + ":"
-    + padNumber(Math.floor(time / 1000) % 60, 2) + ":"
-    + padNumber(Math.floor(time / 10) % 100, 2)
+  return (
+    padNumber(Math.floor(time / 60000), 2) +
+    ':' +
+    padNumber(Math.floor(time / 1000) % 60, 2) +
+    ':' +
+    padNumber(Math.floor(time / 10) % 100, 2)
+  );
 }
 
 interface TimerProps {
@@ -74,34 +80,41 @@ export class Timer extends React.Component<TimerProps> {
 
   updateTimer = () => {
     const currentRef = this.ref.current;
-  
+
     if (currentRef) {
       // console.log("Setting time");
-      if (this.props.timeSinceStart === 0 && this.props.playerState === 'paused')
-        currentRef.innerHTML = "00:00:00";
+      if (
+        this.props.timeSinceStart === 0 &&
+        this.props.playerState === 'paused'
+      )
+        currentRef.innerHTML = '00:00:00';
       else if (this.props.playerState === 'paused') {
         currentRef.innerHTML = mstime2MMSSms(this.props.timeSinceStart);
-      }
-      else {
-        currentRef.innerHTML = mstime2MMSSms(new Date().getTime() - this.props.startTime);
+      } else {
+        currentRef.innerHTML = mstime2MMSSms(
+          new Date().getTime() - this.props.startTime,
+        );
       }
       if (this.props.playerState === 'playing')
         // only request new animation frame when playing
         requestAnimationFrame(this.updateTimer);
     }
-  }
+  };
 
   shouldComponentUpdate() {
-
     if (this.props.playerState === 'paused') {
-      // the state updates somehow inverted. Therefore, the playing and paused are switched 
+      // the state updates somehow inverted. Therefore, the playing and paused are switched
       this.animationFrameLoop = requestAnimationFrame(this.updateTimer);
     }
     return false;
   }
 
   render() {
-    return <span ref={this.ref} className={"time-display"}>00:00:00</span>;
+    return (
+      <span ref={this.ref} className={'time-display'}>
+        00:00:00
+      </span>
+    );
   }
 }
 
@@ -114,11 +127,19 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
   render() {
     return (
       <PlaybackToolbar>
-        <PlayButton onClick={this.props.togglePlayback}>{this.props.playback === 'playing' ? '❚❚' : '▶'}</PlayButton>
+        <PlayButton onClick={this.props.togglePlayback}>
+          {this.props.playback === 'playing' ? '❚❚' : '▶'}
+        </PlayButton>
         <StopButton onClick={this.stopPlayback}>■</StopButton>
         <span>
-          <Timer startTime={this.props.playbackStarted.getTime()} timeSinceStart={this.props.timeSinceStart} playerState={this.props.playback} />
+          <Timer
+            startTime={this.props.playbackStarted.getTime()}
+            timeSinceStart={this.props.timeSinceStart}
+            playerState={this.props.playback}
+          />
         </span>
+        &nbsp;/&nbsp;
+        <span>{mstime2MMSSms(getSongLength(this.props.song))}</span>
       </PlaybackToolbar>
     );
   }
@@ -128,6 +149,7 @@ const mapStateToProps = (state: RootState) => ({
   playback: state.player.playback,
   playbackStarted: state.player.playbackStarted,
   timeSinceStart: state.player.timeSinceStart,
+  song: state.song.loaded,
 });
 
 const mapDispatchToProps = {

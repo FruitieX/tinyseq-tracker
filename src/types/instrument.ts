@@ -1,4 +1,4 @@
-import { _DeepReadonlyArray } from "utility-types/dist/mapped-types";
+import { _DeepReadonlyArray } from 'utility-types/dist/mapped-types';
 
 type WaveformFunction = string;
 type Notes = string[];
@@ -40,16 +40,20 @@ export interface Instrument {
   decay: Decay;
   sustain: Sustain;
   release: Release;
-  
 }
 
 export const patternLength = (notes: String, secsPerRow: number): number => {
   // console.log(notes, secsPerRow);
   if (notes === undefined) return 0;
   return notes.length * secsPerRow * 1000;
-}
+};
 
-export const timeFromBeginning = (song: _DeepReadonlyArray<Instrument>, trackIndex: number, patternIndex: number, noteIndex: number): number => {
+export const timeFromBeginning = (
+  song: _DeepReadonlyArray<Instrument>,
+  trackIndex: number,
+  patternIndex: number,
+  noteIndex: number,
+): number => {
   let time = 0;
   let i = song[trackIndex];
   // add the time from previous patterns
@@ -58,16 +62,18 @@ export const timeFromBeginning = (song: _DeepReadonlyArray<Instrument>, trackInd
     // if pat = 0, then the current pattern in this track is empty.
     // in this case, find the longest pattern from the other instruments (current patternIndex)
     if (pat === 0) {
-      let maxLengths = song.map(i => patternLength(i.notes[i.patterns[p] - 1], i.rowDuration));
+      let maxLengths = song.map(i =>
+        patternLength(i.notes[i.patterns[p] - 1], i.rowDuration),
+      );
       time += Math.max(...maxLengths);
     } else {
       time += patternLength(i.notes[pat - 1], i.rowDuration);
-}
+    }
   }
   // calculate time in current pattern
   time += noteIndex * i.rowDuration * 1000;
   return time;
-}
+};
 
 export type Song = Instrument[];
 
@@ -111,3 +117,16 @@ export const defaultInstrument: Instrument = {
 };
 
 export const parseSong = (tsSong: TSSong): Song => tsSong.map(parseInstrument);
+
+export const getSongLength = (song: Song): number => {
+  let sumTime = 0;
+  let numPatterns = Math.max(...song.map(i => i.patterns.length));
+  for (let p = 0; p < numPatterns; p++) {
+    sumTime += Math.max(
+      ...song.map(i =>
+        patternLength(i.notes[i.patterns[p] - 1], i.rowDuration),
+      ),
+    );
+  }
+  return sumTime;
+};

@@ -109,7 +109,6 @@ export class Track extends React.Component<Props> {
           <p>{this.props.index}</p>
         </div>
         {this.getPattern(instrument).map(this.renderRow)}
-        {/* {notesStringToArr(instrument.notes[instrument.patterns[this.props.currentPattern]]).map(this.renderRow)} */}
       </TrackContainer>
     );
   }

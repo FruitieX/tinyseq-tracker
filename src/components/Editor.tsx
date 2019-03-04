@@ -71,7 +71,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       case 'Space': // Spacebar
         this.props.togglePlayback();
         break;
-        
+
       // keyboard piano
       default:
         const note = keyboard2noteMapping[ev.code];
@@ -88,9 +88,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
   componentDidMount() {
     // console.log(this.props);
-    const { setSong } = this.props;
-    console.log('there', setSong);
-    setSong(parseSong(song as TSSong));
+    // const { setSong } = this.props;
+    // console.log('there', setSong);
+    this.props.setSong(parseSong(song as TSSong));
     document.addEventListener('keydown', this.handleKeyDown);
   }
 

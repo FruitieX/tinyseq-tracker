@@ -131,7 +131,11 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
     if (currentTime >= getSongLength(this.props.song)) {
       this.props.togglePlayback();
     } else {
-      let newPos = time2instrumentPos(currentTime, this.props.song, 0);
+      const newPos = time2instrumentPos(currentTime, this.props.song, 0);
+      const notes = this.props.song
+        .map(i => i.notes[i.patterns[newPos.pattern] - 1])
+        .map(n => (n === undefined ? '' : n.charAt(newPos.row)));
+      console.log(notes);
       this.props.changeRow({ value: newPos.row });
       this.props.changePattern({ pattern: newPos.pattern });
     }

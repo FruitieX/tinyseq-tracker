@@ -133,7 +133,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
         <StopButton onClick={this.stopPlayback}>■</StopButton>
         <span>
           <Timer
-            startTime={this.props.playbackStarted.getTime()}
+            startTime={this.props.playbackStarted}
             timeSinceStart={this.props.timeSinceStart}
             playerState={this.props.playback}
           />

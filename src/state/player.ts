@@ -9,7 +9,6 @@ export const resetPlayback = createStandardAction('playback/RESET_PLAYBACK')();
 export const updateTime = createStandardAction('playback/UPDATE_TIME')();
 export const setTime = createStandardAction('playback/SET_TIME')<number>();
 
-
 const actions = { togglePlayback, resetPlayback, updateTime, setTime };
 export type PlayerActions = ActionType<typeof actions>;
 
@@ -17,13 +16,13 @@ export type PlaybackState = 'playing' | 'paused';
 
 export type PlayerState = {
   playback: PlaybackState;
-  playbackStarted: Date; // unix timestamp in ms
+  playbackStarted: number; // unix timestamp in ms
   timeSinceStart: number;
 };
 
 const initialState: PlayerState = {
   playback: 'paused',
-  playbackStarted: new Date(),
+  playbackStarted: new Date().getTime(),
   timeSinceStart: 0,
 };
 
@@ -36,20 +35,18 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
       case getType(togglePlayback):
         if (state.playback === 'playing') {
           draft.playback = 'paused';
-          draft.timeSinceStart = new Date().getTime() - state.playbackStarted.getTime();
-          console.log("Playback paused");
+          draft.timeSinceStart = new Date().getTime() - state.playbackStarted;
+          console.log('Playback paused');
         } else {
           draft.playback = 'playing';
-          draft.playbackStarted = new Date(
-            new Date().getTime() - draft.timeSinceStart,
-          );
-          console.log("Playback started");
+          draft.playbackStarted = new Date().getTime() - draft.timeSinceStart;
+          console.log('Playback started');
         }
         break;
       case getType(resetPlayback):
         console.log('resetting playback time');
         draft.timeSinceStart = 0;
-        draft.playbackStarted = new Date();
+        draft.playbackStarted = new Date().getTime();
         draft.playback = 'paused';
         break;
       case getType(setTime):

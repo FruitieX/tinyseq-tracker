@@ -175,7 +175,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
     return (
       <PlaybackToolbar>
         <NoteTimer
-          startTime={this.props.playbackStarted.getTime()}
+          startTime={this.props.playbackStarted}
           timeSinceStart={this.props.timeSinceStart}
           playerState={this.props.playback}
           song={this.props.song}

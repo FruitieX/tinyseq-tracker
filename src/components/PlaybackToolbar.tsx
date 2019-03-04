@@ -7,8 +7,9 @@ import {
   resetPlayback,
   PlayerState,
 } from '../state/player';
+import { changeRow, changePattern } from '../state/editor';
 import { connect } from 'react-redux';
-import { Song, getSongLength } from '../types/instrument';
+import { Song, getSongLength, time2instrumentPos } from '../types/instrument';
 
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
@@ -45,11 +46,13 @@ const StopButton = styled.div`
 
 interface PlaybackProps {
   playback: PlaybackState;
-  togglePlayback: () => void;
-  resetPlayback: () => void;
+  togglePlayback: typeof togglePlayback;
+  resetPlayback: typeof resetPlayback;
   playbackStarted: PlayerState['playbackStarted'];
   timeSinceStart: number;
   song: Song;
+  changeRow: typeof changeRow;
+  changePattern: typeof changePattern;
 }
 
 const padNumber = (num: number, pad: number, c?: string): string => {
@@ -101,10 +104,13 @@ export class Timer extends React.Component<TimerProps> {
     }
   };
 
-  shouldComponentUpdate() {
-    if (this.props.playerState === 'paused') {
-      // the state updates somehow inverted. Therefore, the playing and paused are switched
+  componentDidUpdate() {
+    if (this.props.playerState === 'playing') {
       this.animationFrameLoop = requestAnimationFrame(this.updateTimer);
+      return true;
+    } else {
+      this.updateTimer();
+      cancelAnimationFrame(this.animationFrameLoop);
     }
     return false;
   }
@@ -118,17 +124,67 @@ export class Timer extends React.Component<TimerProps> {
   }
 }
 
+interface NoteTimerProps {
+  startTime: number;
+  timeSinceStart: number;
+  playerState: PlaybackState;
+  song: Song;
+  changeRow: typeof changeRow;
+  changePattern: typeof changePattern;
+  // secondsPerRow: number; // editor row refresh rate
+}
+
+export class NoteTimer extends React.Component<NoteTimerProps> {
+  intervalID: number = 0;
+  secondsPerRow: number = 0.5;
+
+  updateEditor = () => {
+    let currentTime = new Date().getTime() - this.props.startTime;
+    // console.log(currentTime);
+    let newState = time2instrumentPos(currentTime, this.props.song, 0);
+    console.log(newState);
+    this.props.changeRow({ value: newState.row });
+    this.props.changePattern({ pattern: newState.pattern });
+  };
+
+  componentDidUpdate() {
+    if (this.props.playerState === 'playing') {
+      this.intervalID = window.setInterval(
+        this.updateEditor,
+        this.props.song[0].rowDuration * 1000,
+      );
+      return true;
+    } else {
+      window.clearInterval(this.intervalID);
+    }
+    return false;
+  }
+
+  // this component does not render anything
+  render() {
+    return null;
+  }
+}
+
 export class PlaybackHandler extends React.Component<PlaybackProps> {
   stopPlayback = () => {
-    // this.props.togglePlayback();
     this.props.resetPlayback();
   };
 
   render() {
     return (
       <PlaybackToolbar>
+        <NoteTimer
+          startTime={this.props.playbackStarted.getTime()}
+          timeSinceStart={this.props.timeSinceStart}
+          playerState={this.props.playback}
+          song={this.props.song}
+          changeRow={this.props.changeRow}
+          changePattern={this.props.changePattern}
+        />
         <PlayButton onClick={this.props.togglePlayback}>
-          {this.props.playback === 'playing' ? '❚❚' : '▶'}
+          {this.props.playback === 'paused' ? '▶' : '❚❚'}
+          {/* {this.props.playback} */}
         </PlayButton>
         <StopButton onClick={this.stopPlayback}>■</StopButton>
         <span>
@@ -155,6 +211,8 @@ const mapStateToProps = (state: RootState) => ({
 const mapDispatchToProps = {
   togglePlayback,
   resetPlayback,
+  changeRow,
+  changePattern,
 };
 
 export default connect(

@@ -57,13 +57,13 @@ export const timeFromBeginning = (
   let time = 0;
   let i = song[trackIndex];
   // add the time from previous patterns
-  for (let p = 0; p < patternIndex; p++) {
-    let pat = i.patterns[p];
+  for (let pi = 0; pi < patternIndex; pi++) {
+    let pat = i.patterns[pi];
     // if pat = 0, then the current pattern in this track is empty.
     // in this case, find the longest pattern from the other instruments (current patternIndex)
     if (pat === 0) {
       let maxLengths = song.map(i =>
-        patternLength(i.notes[i.patterns[p] - 1], i.rowDuration),
+        patternLength(i.notes[i.patterns[pi] - 1], i.rowDuration),
       );
       time += Math.max(...maxLengths);
     } else {
@@ -73,6 +73,56 @@ export const timeFromBeginning = (
   // calculate time in current pattern
   time += noteIndex * i.rowDuration * 1000;
   return time;
+};
+
+export const getRowFromPattern = (
+  notes: String,
+  secsPerRow: number,
+  time: number,
+): number => {
+  return Math.floor((time / (notes.length * secsPerRow * 1000)) * notes.length);
+};
+
+export interface InstrumentPos {
+  track: number;
+  pattern: number;
+  row: number;
+}
+
+export const time2instrumentPos = (
+  time: number,
+  song: Song,
+  track: number,
+): InstrumentPos => {
+  let i = song[track]; // current instrument
+  let secsPerRow = i.rowDuration;
+  let sumTime = 0;
+  for (let pi = 0; sumTime < time; pi++) {
+    let pattern = i.patterns[pi];
+    // if (pattern === 0) {
+    //   let maxLength = Math.max(...song.map(i => patternLength(i.notes[i.patterns[pi] - 1], i.rowDuration)));
+    //   if (time < sumTime + maxLength) {
+    //     return {track: undefined, patternIndex: pi, row: undefined};
+    //   } else {
+    //     sumTime += maxLength;
+    //   }
+    // } else {
+    let notes = i.notes[pattern - 1];
+    let plength = patternLength(notes, secsPerRow);
+    // if time is in current pattern, get row position in current pattern
+    if (time < sumTime + plength) {
+      return {
+        track: 0,
+        pattern: pi,
+        row: getRowFromPattern(notes, secsPerRow, time - sumTime),
+      };
+    } else {
+      // if not, add current pattern length to sumTime and go to next iteration
+      sumTime += plength;
+    }
+    // }
+  }
+  return { track: 0, pattern: 0, row: 0 };
 };
 
 export type Song = Instrument[];

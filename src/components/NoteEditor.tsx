@@ -1,7 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { DeepReadonly } from 'utility-types';
-import { Song, Instrument, defaultInstrument, timeFromBeginning } from '../types/instrument';
+import {
+  Song,
+  Instrument,
+  defaultInstrument,
+  timeFromBeginning,
+} from '../types/instrument';
 import { addInstrument, editSong } from '../state/song';
 import { Track } from './Track';
 import { keyboard2noteMapping } from '../utils/constants';
@@ -55,7 +60,7 @@ interface EditorProps {
   octave: number;
 
   setTime: typeof setTime;
-  playing: PlaybackState,
+  playing: PlaybackState;
 }
 
 class NoteEditor extends React.PureComponent<EditorProps> {
@@ -66,9 +71,19 @@ class NoteEditor extends React.PureComponent<EditorProps> {
   }
 
   componentDidUpdate(prevProps: EditorProps) {
-    console.log(this.props.playing);
-    if (prevProps.row !== this.props.row && this.props.playing === 'paused') {
-      this.props.setTime(timeFromBeginning(this.props.loadedSong,this.props.track, this.props.pattern, this.props.row));
+    if (
+      (prevProps.row !== this.props.row ||
+        prevProps.pattern !== this.props.pattern) &&
+      this.props.playing === 'paused'
+    ) {
+      this.props.setTime(
+        timeFromBeginning(
+          this.props.loadedSong,
+          this.props.track,
+          this.props.pattern,
+          this.props.row,
+        ),
+      );
     }
   }
 
@@ -96,28 +111,34 @@ class NoteEditor extends React.PureComponent<EditorProps> {
 
     const numTracks = this.props.loadedSong.length;
 
-    const patternNotes = loadedSong.map(t => t.notes[t.patterns[pattern] - 1])
+    const patternNotes = loadedSong.map(t => t.notes[t.patterns[pattern] - 1]);
 
     switch (ev.code) {
       case 'ArrowDown':
         ev.stopPropagation();
-        changeRow({ offset: 1, numRows});
-        // setTime(timeFromBeginning(loadedSong,track, pattern, row));
+        changeRow({ offset: 1, numRows });
         return;
 
       case 'ArrowUp':
         ev.stopPropagation();
         changeRow({ offset: -1, numRows });
-        // setTime(timeFromBeginning(loadedSong,track, pattern, row));
         return;
-        
+
       case 'ArrowLeft':
         ev.stopPropagation();
-        return changeTrack({ offset: -1, numTracks: numTracks, song: patternNotes });
+        return changeTrack({
+          offset: -1,
+          numTracks: numTracks,
+          song: patternNotes,
+        });
 
       case 'ArrowRight':
         ev.stopPropagation();
-        return changeTrack({ offset: 1, numTracks: numTracks, song: patternNotes });
+        return changeTrack({
+          offset: 1,
+          numTracks: numTracks,
+          song: patternNotes,
+        });
 
       case 'Backspace':
         ev.stopPropagation();

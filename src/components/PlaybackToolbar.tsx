@@ -131,7 +131,7 @@ interface NoteTimerProps {
   song: Song;
   changeRow: typeof changeRow;
   changePattern: typeof changePattern;
-  // secondsPerRow: number; // editor row refresh rate
+  onSongEnd: () => void;
 }
 
 export class NoteTimer extends React.Component<NoteTimerProps> {
@@ -140,11 +140,15 @@ export class NoteTimer extends React.Component<NoteTimerProps> {
 
   updateEditor = () => {
     let currentTime = new Date().getTime() - this.props.startTime;
-    // console.log(currentTime);
-    let newState = time2instrumentPos(currentTime, this.props.song, 0);
-    console.log(newState);
-    this.props.changeRow({ value: newState.row });
-    this.props.changePattern({ pattern: newState.pattern });
+    if (currentTime >= getSongLength(this.props.song)) {
+      this.props.onSongEnd();
+    } else {
+      // console.log(currentTime);
+      let newState = time2instrumentPos(currentTime, this.props.song, 0);
+      console.log(newState);
+      this.props.changeRow({ value: newState.row });
+      this.props.changePattern({ pattern: newState.pattern });
+    }
   };
 
   componentDidUpdate() {
@@ -172,6 +176,8 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
   };
 
   render() {
+    const songLength = getSongLength(this.props.song);
+
     return (
       <PlaybackToolbar>
         <NoteTimer
@@ -181,6 +187,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
           song={this.props.song}
           changeRow={this.props.changeRow}
           changePattern={this.props.changePattern}
+          onSongEnd={this.props.togglePlayback}
         />
         <PlayButton onClick={this.props.togglePlayback}>
           {this.props.playback === 'paused' ? '▶' : '❚❚'}
@@ -195,7 +202,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
           />
         </span>
         &nbsp;/&nbsp;
-        <span>{mstime2MMSSms(getSongLength(this.props.song))}</span>
+        <span>{mstime2MMSSms(songLength)}</span>
       </PlaybackToolbar>
     );
   }

@@ -105,7 +105,7 @@ class NoteEditor extends React.PureComponent<EditorProps> {
 
     const activeTrack = loadedSong[track];
     const activeTrackNotes =
-      activeTrack && activeTrack.notes[activeTrack.patterns[pattern]];
+      activeTrack && activeTrack.notes[activeTrack.patterns[pattern] - 1];
 
     const numRows = activeTrackNotes ? activeTrackNotes.length : 1;
 

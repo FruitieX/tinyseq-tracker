@@ -121,7 +121,7 @@ export const playNote = (
     time?: number,
   ) => {
     // First cancel any scheduled value changes
-    param.cancelAndHoldAtTime(t);
+    param.cancelAndHoldAtTime(t + 0.001);
 
     // Value starts at from value, first fade old value to 'from' to avoid clicking
     time && param.setTargetAtTime(from, t, 0.001);
@@ -150,7 +150,7 @@ export const playNote = (
   node.parameters.get('n').setValueAtTime(t, t);
 
   // Attack
-  // ADSR(node.parameters.get('e'), 0, instrument.volume, t + instrument.attack);
+  ADSR(node.parameters.get('e'), 0, instrument.volume, t + instrument.attack);
 
   // Decay
   ADSR(

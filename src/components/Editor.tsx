@@ -143,7 +143,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <GraphWrapper />
         <NoteEditor />
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
-        <PlaybackHandler />
+        <PlaybackHandler instrumentRef={this.instrumentRef} />
         <SoundFactory />
         <InstrumentManager ref={this.instrumentRef} />
       </TrackerWrapper>

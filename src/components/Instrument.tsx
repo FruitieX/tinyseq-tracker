@@ -228,6 +228,15 @@ export class InstrumentManager extends React.Component<Props, State> {
     playNote(instrumentInstance, note);
   };
 
+  playNotes = (notes: string[]) => {
+    console.log('playing notes ', ...notes);
+    notes.forEach(
+      (n, i) =>
+        this.state.instrumentInstances &&
+        playNote(this.state.instrumentInstances[i], n.charCodeAt(0)),
+    );
+  };
+
   render() {
     return null;
   }

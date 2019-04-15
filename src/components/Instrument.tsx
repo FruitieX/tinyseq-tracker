@@ -3,6 +3,7 @@ import { Instrument } from '../types/instrument';
 
 import { RootState } from '../state/rootReducer';
 import { connect } from 'react-redux';
+import { noteCharToSound } from './Track';
 
 interface Props {
   instrument: Instrument;
@@ -220,12 +221,14 @@ export class InstrumentManager extends React.Component<Props, State> {
   }
 
   playNote = (note: number) => {
-    const instrumentInstance = this.state.instrumentInstance;
+    if (note > 33) {
+      const instrumentInstance = this.state.instrumentInstance;
 
-    if (!instrumentInstance) return console.log('Instrument not loaded');
+      if (!instrumentInstance) return console.log('Instrument not loaded');
 
-    console.log('playing note', note);
-    playNote(instrumentInstance, note);
+      console.log('playing note', note);
+      playNote(instrumentInstance, note);
+    }
   };
 
   playNotes = (notes: string[]) => {
@@ -233,7 +236,7 @@ export class InstrumentManager extends React.Component<Props, State> {
     notes.forEach(
       (n, i) =>
         this.state.instrumentInstances &&
-        playNote(this.state.instrumentInstances[i], n.charCodeAt(0)),
+        playNote(this.state.instrumentInstances[i], noteCharToSound(n)),
     );
   };
 

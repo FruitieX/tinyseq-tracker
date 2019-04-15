@@ -137,8 +137,6 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
       const notes = this.props.song
         .map(i => i.notes[i.patterns[newPos.pattern] - 1])
         .map(n => (n === undefined ? '' : n.charAt(newPos.row)));
-      // console.log(notes);
-      console.log(this.props.instrumentRef);
       if (this.props.instrumentRef.current) {
         this.props.instrumentRef.current
           // @ts-ignore: this is fine

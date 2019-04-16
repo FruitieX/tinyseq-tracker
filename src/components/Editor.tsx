@@ -19,6 +19,8 @@ import InstrumentManager, {
 import { keyboard2noteMapping } from '../utils/constants';
 import NoteEditor from './NoteEditor';
 import { setOctave, setNoteSkip } from '../state/editor';
+import { Preview } from './Preview';
+// import FileManager from './FileManager';
 
 const NoteToolbar = styled.div`
   grid-area: note-toolbar;
@@ -33,8 +35,10 @@ const TrackerWrapper = styled.div`
   grid-template-areas:
     'playback-toolbar header right-top'
     'panel main-editor  right-top'
-    'panel note-toolbar right-top'
+    'panel note-toolbar preview'
     'info  footer       right-bottom';
+
+  overflow: hidden;
 `;
 
 const GraphWrapper = styled.div`
@@ -146,6 +150,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <PlaybackHandler instrumentRef={this.instrumentRef} />
         <SoundFactory />
         <InstrumentManager ref={this.instrumentRef} />
+        <Preview />
+        {/* <FileManager /> */}
       </TrackerWrapper>
     );
   }

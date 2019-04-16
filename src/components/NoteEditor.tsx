@@ -70,6 +70,10 @@ class NoteEditor extends React.PureComponent<EditorProps> {
     this.editorRef.current!.addEventListener('keydown', this.handleKeyDown);
   }
 
+  componentWillUnmount() {
+    this.editorRef.current!.removeEventListener('keydown', this.handleKeyDown);
+  }
+
   componentDidUpdate(prevProps: EditorProps) {
     if (
       (prevProps.row !== this.props.row ||

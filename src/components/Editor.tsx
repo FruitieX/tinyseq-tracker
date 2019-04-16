@@ -20,6 +20,8 @@ import { keyboard2noteMapping } from '../utils/constants';
 import NoteEditor from './NoteEditor';
 import { setOctave, setNoteSkip } from '../state/editor';
 import { Preview } from './Preview';
+
+import { range } from 'fp-ts/es6/Array';
 // import FileManager from './FileManager';
 
 const NoteToolbar = styled.div`
@@ -61,6 +63,7 @@ interface EditorProps {
   currentOctave: number;
   noteSkip: number;
   setTime: (time: number) => void;
+  activeTrack: number;
 }
 
 interface EditorState {
@@ -84,12 +87,23 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       default:
         const note = keyboard2noteMapping[ev.code];
 
-        // Play notes instantly
-        if (note !== undefined && this.instrumentRef.current)
+        if (note !== undefined && this.instrumentRef.current) {
+          const notes = range(0, this.props.loadedSong.length - 1).map(
+            (_, index) => {
+              if (index === this.props.activeTrack) {
+                return String.fromCharCode(35 + note + 12 * currentOctave);
+              }
+
+              return ' ';
+            },
+          );
+
+          // Play notes instantly
           this.instrumentRef.current
             // @ts-ignore: this is fine
             .getWrappedInstance()
-            .playNote(35 + note + 12 * currentOctave);
+            .playNotes(notes);
+        }
         break;
     }
   };
@@ -167,6 +181,7 @@ const mapStateToProps = (state: RootState) => ({
   playbackStarted: state.player.playbackStarted,
   currentOctave: state.editor.octave,
   noteSkip: state.editor.noteSkip,
+  activeTrack: state.editor.track,
 });
 
 const mapDispatchToProps = {

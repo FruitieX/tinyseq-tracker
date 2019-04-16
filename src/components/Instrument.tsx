@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { noteCharToSound } from './Track';
 
 interface Props {
-  instrument: Instrument;
   instruments: Instrument[];
   currentTrack: number;
 }
@@ -14,7 +13,6 @@ interface Props {
 interface State {
   instrumentInstance?: InstrumentInstance;
   instrumentInstances?: InstrumentInstance[];
-  loadedInstrument?: Instrument;
   loadedInstruments?: Instrument[];
 }
 
@@ -83,8 +81,10 @@ export const initInstrument = async (
       // low pass filter to hopefully fix weird aliasing crap?
       lowpass.frequency.setValueAtTime(10000, 0);
 
-      // @ts-ignore: eh, this works
-      const node = new AudioWorkletNode(ctx, instrumentIndex);
+      const node = new AudioWorkletNode(
+        ctx,
+        (instrumentIndex as any) as string,
+      );
       node.connect(lowpass).connect(ctx.destination);
 
       return node;
@@ -184,27 +184,19 @@ export class InstrumentManager extends React.Component<Props, State> {
     // clean, beautiful global variables
     (window as any).i = [];
 
-    const instrument = this.props.instrument;
-
-    // const instrumentInstance = await initInstrument(instrument);
-
     const instruments = this.props.instruments;
 
     if (!instruments) return;
 
-    await Promise.all(instruments.map(i => initInstrument(i))).then(result => {
-      (window as any).i = result;
+    const instrumentInstances = await Promise.all(
+      instruments.map(initInstrument),
+    );
+    (window as any).i = instrumentInstances;
 
-      const instrumentInstances = result;
-      const instrumentInstance = instrumentInstances[this.props.currentTrack];
-
-      this.setState(() => ({
-        instrumentInstance: instrumentInstance,
-        instrumentInstances: instrumentInstances,
-        loadedInstrument: instrument,
-        loadedInstruments: instruments,
-      }));
-    });
+    this.setState(() => ({
+      instrumentInstances: instrumentInstances,
+      loadedInstruments: instruments,
+    }));
   };
 
   componentDidMount() {
@@ -218,28 +210,19 @@ export class InstrumentManager extends React.Component<Props, State> {
           this.state.instrumentInstances === undefined
             ? undefined
             : this.state.instrumentInstances[this.props.currentTrack],
-        loadedInstrument: this.props.instruments[this.props.currentTrack],
       }));
     }
   }
 
-  playNote = (note: number) => {
-    if (note > 33) {
-      const instrumentInstance = this.state.instrumentInstance;
-
-      if (!instrumentInstance) return console.log('Instrument not loaded');
-
-      console.log('playing note', note);
-      playNote(instrumentInstance, note);
-    }
-  };
-
   playNotes = (notes: string[]) => {
     console.log('playing notes ', ...notes);
-    notes.forEach(
-      (n, i) =>
-        this.state.instrumentInstances &&
-        playNote(this.state.instrumentInstances[i], noteCharToSound(n) - 33),
+
+    const instrumentInstances = this.state.instrumentInstances;
+
+    if (!instrumentInstances) return;
+
+    notes.forEach((n, i) =>
+      playNote(instrumentInstances[i], noteCharToSound(n) - 33),
     );
   };
 
@@ -249,7 +232,6 @@ export class InstrumentManager extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  instrument: state.song.loaded[state.editor.track],
   instruments: state.song.loaded,
   currentTrack: state.editor.track,
   playback: state.player.playback,

@@ -19,6 +19,7 @@ import InstrumentManager, {
 import { keyboard2noteMapping } from '../utils/constants';
 import NoteEditor from './NoteEditor';
 import { setOctave, setNoteSkip } from '../state/editor';
+import { Preview } from './Preview';
 // import FileManager from './FileManager';
 
 const NoteToolbar = styled.div`
@@ -95,26 +96,11 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     // console.log('there', setSong);
     this.props.setSong(parseSong(song as TSSong));
     document.addEventListener('keydown', this.handleKeyDown);
-
-    const fragmentShader = require('raw-loader!../fragment.glsl');
-    const vertexShader = require('raw-loader!../vertex.glsl');
-
-    const src = initDemo
-      .replace("require('./fragment.glsl')", `\`${fragmentShader}\``)
-      .replace("require('./vertex.glsl')", `\`${vertexShader}\``);
-
-    console.log('running initDemo');
-
-    // work around strict mode ;)
-    Function(src)();
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown);
     window.clearInterval(this.timerHandle);
-
-    // @ts-ignore: Z is set by the demo
-    cancelAnimationFrame(Z);
   }
 
   handleOctaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,6 +150,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <PlaybackHandler instrumentRef={this.instrumentRef} />
         <SoundFactory />
         <InstrumentManager ref={this.instrumentRef} />
+        <Preview />
         {/* <FileManager /> */}
       </TrackerWrapper>
     );

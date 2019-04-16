@@ -186,22 +186,20 @@ export class InstrumentManager extends React.Component<Props, State> {
 
     if (!instruments) return;
 
-    Promise.all(instruments.map(async i => await initInstrument(i))).then(
-      result => {
-        const instrumentInstances = result;
-        const instrumentInstance = instrumentInstances[this.props.currentTrack];
+    await Promise.all(instruments.map(i => initInstrument(i))).then(result => {
+      const instrumentInstances = result;
+      const instrumentInstance = instrumentInstances[this.props.currentTrack];
 
-        // @ts-ignore
-        // window.i = instrumentInstance;
+      // @ts-ignore
+      // window.i = instrumentInstance;
 
-        this.setState(() => ({
-          instrumentInstance: instrumentInstance,
-          instrumentInstances: instrumentInstances,
-          loadedInstrument: instrument,
-          loadedInstruments: instruments,
-        }));
-      },
-    );
+      this.setState(() => ({
+        instrumentInstance: instrumentInstance,
+        instrumentInstances: instrumentInstances,
+        loadedInstrument: instrument,
+        loadedInstruments: instruments,
+      }));
+    });
   };
 
   componentDidMount() {

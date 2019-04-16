@@ -116,6 +116,10 @@ export class Timer extends React.Component<TimerProps> {
     return false;
   }
 
+  componentWillUnmount() {
+    cancelAnimationFrame(this.animationFrameLoop);
+  }
+
   render() {
     return (
       <span ref={this.ref} className={'time-display'}>
@@ -149,6 +153,8 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
   };
 
   stopPlayback = () => {
+    this.props.changeRow({ value: 0 });
+    this.props.changePattern({ pattern: 0 });
     this.props.resetPlayback();
   };
 

@@ -101,6 +101,9 @@ export const playNote = (
   instrumentInstance: InstrumentInstance,
   note: number,
 ) => {
+  if (!instrumentInstance)
+    return console.warn('no instrumentInstance passed to playNote!');
+
   const instrument = instrumentInstance.instrument;
 
   // little override to make TSC happy, there's probably a correct way of doing this
@@ -178,6 +181,9 @@ export class InstrumentManager extends React.Component<Props, State> {
       this.state.instrumentInstances.map(i => i.ctx.close());
     }
 
+    // clean, beautiful global variables
+    (window as any).i = [];
+
     const instrument = this.props.instrument;
 
     // const instrumentInstance = await initInstrument(instrument);
@@ -187,11 +193,10 @@ export class InstrumentManager extends React.Component<Props, State> {
     if (!instruments) return;
 
     await Promise.all(instruments.map(i => initInstrument(i))).then(result => {
+      (window as any).i = result;
+
       const instrumentInstances = result;
       const instrumentInstance = instrumentInstances[this.props.currentTrack];
-
-      // @ts-ignore
-      // window.i = instrumentInstance;
 
       this.setState(() => ({
         instrumentInstance: instrumentInstance,

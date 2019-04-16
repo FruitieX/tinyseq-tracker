@@ -29,14 +29,18 @@ const NoteToolbar = styled.div`
 
 const TrackerWrapper = styled.div`
   display: grid;
-  grid-template-columns: 15vw 70vw 15vw;
-  grid-template-rows: 150px 6fr 50px 2fr;
-  height: 100vh;
+
+  padding: 1rem;
+  gap: 1rem;
+
+  grid-template-rows: 1fr 2fr 10fr 1fr;
+  /* grid-template-columns: 1fr 4fr; */
+
   grid-template-areas:
-    'playback-toolbar header right-top'
-    'panel main-editor  right-top'
-    'panel note-toolbar preview'
-    'info  footer       right-bottom';
+    'playback-toolbar   instruments'
+    'patterns           preview'
+    'main-editor        preview'
+    'note-toolbar       preview';
 
   overflow: hidden;
 `;

@@ -6,8 +6,7 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div`
   grid-area: preview;
-  width: 100%;
-  height: 100%;
+  display: flex;
 `;
 
 export class Preview extends React.PureComponent {

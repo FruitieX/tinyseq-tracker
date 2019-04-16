@@ -2,8 +2,8 @@ WIDTH = 1280;
 HEIGHT = 720;
 //document.write`<canvas id=W>`;
 
-W.style.height = '100vh';
-W.style.margin = -8;
+// W.style.height = '100vh';
+// W.style.margin = -8;
 (W.width = WIDTH), (W.height = HEIGHT);
 
 for (i in (A = new AudioContext())) A[i[0] + i[6]] = A[i];
@@ -21,13 +21,11 @@ for (i in (g = W.getContext`webgl`)) g[i[0] + i[6]] = g[i];
     g.uniform4f(
       // g.getUniformLocation
       g.gf(P, 'Z'),
-      1,
-      i.node && i.node.parameters.get('f').value / 1000,
-      1,
-      // A.currentTime,
-      // framerate independent moving average:
-      // https://www.gamedev.net/forums/topic/499983-smooth-framerate-independent-chase-camera/#comment-4261584
-      //b = B * b + (1 - B) * I[0].e.gain.value,
+      0,
+      0,
+
+      // blue channel reacts to instrument envelope / volume
+      i && i[0].node && i[0].node.parameters.get('e').value * 1,
 
       (Z = requestAnimationFrame(R, (T = t))),
     ),

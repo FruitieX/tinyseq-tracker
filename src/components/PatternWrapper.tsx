@@ -17,7 +17,7 @@ const PatternContainer = styled.div`
 `;
 
 const PatternArea = styled.div`
-  grid-area: panel;
+  grid-area: patterns;
   overflow: auto;
   h3 {
     text-align: center;

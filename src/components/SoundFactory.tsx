@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { SongState, editSong } from '../state/song';
 
 const SoundFactoryContainer = styled.div`
-  grid-area: right-top;
+  grid-area: instruments;
 `;
 
 interface SoundFactoryProps {

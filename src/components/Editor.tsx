@@ -39,6 +39,8 @@ const TrackerWrapper = styled.div`
     'panel main-editor  right-top'
     'panel note-toolbar preview'
     'info  footer       right-bottom';
+
+  overflow: hidden;
 `;
 
 const GraphWrapper = styled.div`

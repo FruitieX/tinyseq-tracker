@@ -14,6 +14,7 @@ import { connect } from 'react-redux';
 import { RootState } from '../state/rootReducer';
 import { changeRow, changeTrack } from '../state/editor';
 import { setTime, PlaybackState } from '../state/player';
+import { colors, baseButton } from '../utils/styles';
 
 const Wrapper = styled.div`
   grid-area: main-editor;
@@ -28,19 +29,13 @@ const Wrapper = styled.div`
   }
 
   &:focus {
-    border: solid 1px #f00;
+    border: solid 1px ${colors.active.bg};
     outline: none;
   }
 `;
 
-const AddInstrumentButton = styled.input`
-  height: 30px;
-  background-color: Transparent;
-  border: 1px solid gray;
-  color: white;
-  &:hover {
-    background-color: green;
-  }
+const AddInstrumentButton = styled.button`
+  ${baseButton};
 `;
 
 interface EditorProps {
@@ -235,9 +230,10 @@ class NoteEditor extends React.PureComponent<EditorProps> {
 
         <AddInstrumentButton
           type="button"
-          value="+"
           onClick={this.handleAddInstrumentClick}
-        />
+        >
+          {`+`}
+        </AddInstrumentButton>
       </Wrapper>
     );
   }

@@ -3,9 +3,14 @@ import styled from 'styled-components';
 import { RootState } from '../state/rootReducer';
 import { connect } from 'react-redux';
 import { SongState, editSong } from '../state/song';
+import { baseInput } from '../utils/styles';
 
 const SoundFactoryContainer = styled.div`
   grid-area: instruments;
+`;
+
+const Input = styled.input`
+  ${baseInput};
 `;
 
 interface SoundFactoryProps {
@@ -29,15 +34,10 @@ export class SoundFactory extends React.Component<SoundFactoryProps> {
     return row ? row.waveform : '';
   };
 
-  addSine = () => {
-    this.setState({ value: this.getWaveform() + '+Math.sin(2*2)' });
-  };
-
   render() {
     return (
       <SoundFactoryContainer>
-        <button onClick={this.addSine}>sin(ft)</button>
-        <input
+        <Input
           type="text"
           value={this.getWaveform()}
           onChange={this.handleChange}

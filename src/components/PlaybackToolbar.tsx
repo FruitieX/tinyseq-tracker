@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { RootState } from '../state/rootReducer';
 import {
   togglePlayback,
@@ -11,38 +11,24 @@ import { changeRow, changePattern } from '../state/editor';
 import { connect } from 'react-redux';
 import { Song, getSongLength, time2instrumentPos } from '../types/instrument';
 import { InstrumentManager } from './Instrument';
+import { baseButton } from '../utils/styles';
 
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
-  display: flex;
-  div {
-    text-align: center;
-    border: 1px solid gray;
-    cursor: pointer;
 
-    -webkit-user-select: none; /* Safari */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* IE10+/Edge */
-    user-select: none; /* Standard */
+  display: grid;
+  grid-auto-flow: column;
 
-    &:hover {
-      background-color: #555;
-    }
-  }
+  gap: 1rem;
+  align-items: center;
 `;
 
-const PlayButton = styled.div`
-  min-width: 70px;
-  height: 25px;
-  margin: 0 5px;
-  padding-top: 7px;
+const PlayButton = styled.button`
+  ${baseButton} width: 70px;
 `;
 
-const StopButton = styled.div`
-  min-width: 30px;
-  height: 23px;
-  margin: 2px 5px 0 5px;
-  padding-top: 6px;
+const StopButton = styled.button`
+  ${baseButton} width: 32px;
 `;
 
 interface PlaybackProps {

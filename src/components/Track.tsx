@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Instrument } from '../types/instrument';
+import { colors } from '../utils/styles';
 
 const TrackContainer = styled.div`
   padding-left: 16px;
@@ -18,11 +19,24 @@ interface Props {
 
 interface INoteContainerProps {
   selected: boolean;
+  rowActive: boolean;
 }
 const NoteContainer = styled.div<INoteContainerProps>`
-  color: ${props => (props.selected ? '#000' : 'inherit')};
-  background-color: ${props => (props.selected ? '#f52' : 'inherit')};
   text-align: center;
+
+  color: ${props =>
+    props.selected
+      ? colors.active.fg
+      : props.rowActive
+        ? colors.hover.fg
+        : colors.inactive.fg};
+
+  background-color: ${props =>
+    props.selected
+      ? colors.active.bg
+      : props.rowActive
+        ? colors.hover.bg
+        : colors.inactive.bg};
 `;
 
 interface Code2Note {
@@ -97,6 +111,7 @@ export class Track extends React.Component<Props> {
       <NoteContainer
         key={index}
         selected={this.props.selected && this.props.selectedRow === index}
+        rowActive={this.props.selectedRow === index}
         onClick={this.handleClick(index)}
       >
         {note}

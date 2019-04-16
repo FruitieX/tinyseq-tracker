@@ -35,7 +35,7 @@ const TrackerWrapper = styled.div`
   padding: 1rem;
   gap: 1rem;
 
-  grid-template-rows: 1fr 2fr 10fr 1fr;
+  grid-template-rows: auto 1fr 3fr auto;
   /* grid-template-columns: 1fr 4fr; */
 
   grid-template-areas:

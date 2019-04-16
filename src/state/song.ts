@@ -38,6 +38,9 @@ export interface AddPattern {
   trackId: number;
   notes: string;
 }
+export interface RemovePattern {
+  trackId: number;
+}
 
 export interface EditPattern {
   trackId: number;
@@ -51,13 +54,23 @@ export const addInstrument = createStandardAction('song/ADD_INSTRUMENT')<
 export const addPattern = createStandardAction('song/ADD_PATTERN')<
   AddPattern
 >();
+export const removePattern = createStandardAction('song/REMOVE_PATTERN')<
+  RemovePattern
+>();
 export const editPattern = createStandardAction('song/EDIT_PATTERN')<
   EditPattern
 >();
 export const editSong = createStandardAction('song/EDIT_SONG')<EditSong>();
 export const setSong = createStandardAction('song/SET_SONG')<Song>();
 
-const actions = { addInstrument, addPattern, editPattern, editSong, setSong };
+const actions = {
+  addInstrument,
+  addPattern,
+  removePattern,
+  editPattern,
+  editSong,
+  setSong,
+};
 export type SongActions = ActionType<typeof actions>;
 
 export type SongState = DeepReadonly<{
@@ -82,6 +95,9 @@ export const songReducer: Reducer<SongState, SongActions> = (
         draft.loaded[action.payload.trackId].patterns.push(
           draft.loaded[action.payload.trackId].notes.length - 1,
         );
+        break;
+      case getType(removePattern):
+        draft.loaded[action.payload.trackId].patterns.pop();
         break;
       case getType(editPattern):
         draft.loaded[action.payload.trackId].patterns[

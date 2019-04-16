@@ -70,6 +70,10 @@ const noteCharToString = (note: string): string => {
   }
 };
 
+export const noteCharToSound = (note: string): number => {
+  return note.charCodeAt(0);
+};
+
 const notesStringToArr = (notes: string): string[] => {
   return notes.split('').map(noteCharToString);
 };

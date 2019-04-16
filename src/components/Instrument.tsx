@@ -3,14 +3,19 @@ import { Instrument } from '../types/instrument';
 
 import { RootState } from '../state/rootReducer';
 import { connect } from 'react-redux';
+import { noteCharToSound } from './Track';
 
 interface Props {
   instrument: Instrument;
+  instruments: Instrument[];
+  currentTrack: number;
 }
 
 interface State {
   instrumentInstance?: InstrumentInstance;
+  instrumentInstances?: InstrumentInstance[];
   loadedInstrument?: Instrument;
+  loadedInstruments?: Instrument[];
 }
 
 // TODO: put these in config
@@ -167,44 +172,72 @@ export const playNote = (
 export class InstrumentManager extends React.Component<Props, State> {
   state: State = {};
 
-  refreshInstrument = async () => {
-    console.log('refreshing instrument');
-    if (this.state.instrumentInstance) {
-      this.state.instrumentInstance.ctx.close();
+  refreshInstruments = async () => {
+    console.log('refreshing instruments');
+    if (this.state.instrumentInstances) {
+      this.state.instrumentInstances.map(i => i.ctx.close());
     }
 
     const instrument = this.props.instrument;
 
-    if (!instrument) return;
+    // const instrumentInstance = await initInstrument(instrument);
 
-    const instrumentInstance = await initInstrument(instrument);
+    const instruments = this.props.instruments;
 
-    // @ts-ignore
-    window.i = instrumentInstance;
+    if (!instruments) return;
 
-    this.setState(() => ({
-      instrumentInstance,
-      loadedInstrument: instrument,
-    }));
+    Promise.all(instruments.map(async i => await initInstrument(i))).then(
+      result => {
+        const instrumentInstances = result;
+        const instrumentInstance = instrumentInstances[this.props.currentTrack];
+
+        // @ts-ignore
+        // window.i = instrumentInstance;
+
+        this.setState(() => ({
+          instrumentInstance: instrumentInstance,
+          instrumentInstances: instrumentInstances,
+          loadedInstrument: instrument,
+          loadedInstruments: instruments,
+        }));
+      },
+    );
   };
 
   componentDidMount() {
-    this.refreshInstrument();
+    this.refreshInstruments();
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.instrument !== this.props.instrument) {
-      this.refreshInstrument();
+    if (prevProps.currentTrack !== this.props.currentTrack) {
+      this.setState(() => ({
+        instrumentInstance:
+          this.state.instrumentInstances === undefined
+            ? undefined
+            : this.state.instrumentInstances[this.props.currentTrack],
+        loadedInstrument: this.props.instruments[this.props.currentTrack],
+      }));
     }
   }
 
   playNote = (note: number) => {
-    const instrumentInstance = this.state.instrumentInstance;
+    if (note > 33) {
+      const instrumentInstance = this.state.instrumentInstance;
 
-    if (!instrumentInstance) return console.log('Instrument not loaded');
+      if (!instrumentInstance) return console.log('Instrument not loaded');
 
-    console.log('playing note', note);
-    playNote(instrumentInstance, note);
+      console.log('playing note', note);
+      playNote(instrumentInstance, note);
+    }
+  };
+
+  playNotes = (notes: string[]) => {
+    console.log('playing notes ', ...notes);
+    notes.forEach(
+      (n, i) =>
+        this.state.instrumentInstances &&
+        playNote(this.state.instrumentInstances[i], noteCharToSound(n)),
+    );
   };
 
   render() {
@@ -213,7 +246,9 @@ export class InstrumentManager extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  instrument: state.song.loaded[0] as any,
+  instrument: state.song.loaded[state.editor.track],
+  instruments: state.song.loaded,
+  currentTrack: state.editor.track,
   playback: state.player.playback,
   playbackStarted: state.player.playbackStarted,
 });

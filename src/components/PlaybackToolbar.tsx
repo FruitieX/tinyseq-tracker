@@ -10,6 +10,7 @@ import {
 import { changeRow, changePattern } from '../state/editor';
 import { connect } from 'react-redux';
 import { Song, getSongLength, time2instrumentPos } from '../types/instrument';
+import { InstrumentManager } from './Instrument';
 
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
@@ -53,6 +54,7 @@ interface PlaybackProps {
   song: Song;
   changeRow: typeof changeRow;
   changePattern: typeof changePattern;
+  instrumentRef: React.RefObject<InstrumentManager>;
 }
 
 const padNumber = (num: number, pad: number, c?: string): string => {
@@ -135,7 +137,12 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
       const notes = this.props.song
         .map(i => i.notes[i.patterns[newPos.pattern] - 1])
         .map(n => (n === undefined ? '' : n.charAt(newPos.row)));
-      console.log(notes);
+      if (this.props.instrumentRef.current) {
+        this.props.instrumentRef.current
+          // @ts-ignore: this is fine
+          .getWrappedInstance()
+          .playNotes(notes);
+      }
       this.props.changeRow({ value: newPos.row });
       this.props.changePattern({ pattern: newPos.pattern });
     }

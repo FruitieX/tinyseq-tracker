@@ -138,7 +138,17 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
     }
   };
 
-  stopPlayback = () => {
+  togglePlayback = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // don't leave button focused after click
+    e.currentTarget.blur();
+
+    this.props.togglePlayback();
+  };
+
+  stopPlayback = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // don't leave button focused after click
+    e.currentTarget.blur();
+
     this.props.changeRow({ value: 0 });
     this.props.changePattern({ pattern: 0 });
     this.props.resetPlayback();
@@ -160,7 +170,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
 
     return (
       <PlaybackToolbar>
-        <PlayButton onClick={this.props.togglePlayback}>
+        <PlayButton onClick={this.togglePlayback}>
           {this.props.playback === 'paused' ? '▶' : '❚❚'}
           {/* {this.props.playback} */}
         </PlayButton>

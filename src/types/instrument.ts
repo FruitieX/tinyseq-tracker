@@ -89,6 +89,32 @@ export interface InstrumentPos {
   row: number;
 }
 
+export const nextRow = (
+  instrument: Instrument,
+  patternIndex: number,
+  rowNumber: number,
+) => {
+  if (
+    instrument.notes[instrument.patterns[patternIndex] - 1].length < rowNumber
+  )
+    return { patternIndex: patternIndex + 1, rowNumber: 0 };
+  else return { patternIndex: patternIndex, rowNumber: rowNumber + 1 };
+};
+
+export const previousRow = (
+  instrument: Instrument,
+  patternIndex: number,
+  rowNumber: number,
+) => {
+  if (rowNumber === 0)
+    return {
+      patternIndex: patternIndex - 1,
+      rowNumber:
+        instrument.notes[instrument.patterns[patternIndex - 1] - 1].length,
+    };
+  else return { patternIndex: patternIndex, rowNumber: rowNumber - 1 };
+};
+
 export const time2instrumentPos = (
   time: number,
   song: Song,

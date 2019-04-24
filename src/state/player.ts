@@ -27,9 +27,11 @@ const initialState: PlayerState = {
 };
 
 // terrible globals for demo
-(window as any).playbackStarted = 0;
-(window as any).timeSinceStart = 0;
-(window as any).playback = 'paused';
+if ((process as any).browser) {
+  (window as any).playbackStarted = 0;
+  (window as any).timeSinceStart = 0;
+  (window as any).playback = 'paused';
+}
 
 export const playerReducer: Reducer<PlayerState, PlayerActions> = (
   state = initialState,

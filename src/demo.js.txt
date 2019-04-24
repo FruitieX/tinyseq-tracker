@@ -1,13 +1,13 @@
-WIDTH = 1280;
-HEIGHT = 720;
-//document.write`<canvas id=W>`;
+#ifndef DEV
+document.write`<canvas id=W>`;
 
-// W.style.height = '100vh';
-// W.style.margin = -8;
+W.style.height = '100vh';
+W.style.margin = -8;
+#endif
+
 (W.width = WIDTH), (W.height = HEIGHT);
 
-// for (i in (A = new AudioContext())) A[i[0] + i[6]] = A[i];
-
+#if DEV
 // mock AudioContext which returns currentTime from editor
 A = {
   get currentTime() {
@@ -20,6 +20,9 @@ A = {
     }
   },
 };
+#else
+for (i in (A = new AudioContext())) A[i[0] + i[6]] = A[i];
+#endif
 
 for (i in (g = W.getContext`webgl`)) g[i[0] + i[6]] = g[i];
 
@@ -52,13 +55,13 @@ g.sS((S = g.cS(g.FN)), require('./fragment.glsl'));
 g.ce(S);
 g.aS(P, S);
 
-// #ifdef DEV
+#ifdef DEV
 // Log compilation errors
 if (!g.getShaderParameter(S, 35713)) {
   // COMPILE_STATUS = 35713
   throw g.getShaderInfoLog(S);
 }
-// #endif
+#endif
 
 // vertex shader, g.VERTEX_SHADER = 35633 = g.FN+1
 // g.shaderSource = g.sS, g.createShader = g.cS

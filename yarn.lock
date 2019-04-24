@@ -2037,6 +2037,19 @@ bytes@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.0.0.tgz#d32815404d689699f85a4ea4fa8755dd13a96048"
 
+c-preprocessor-loader@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/c-preprocessor-loader/-/c-preprocessor-loader-1.0.0.tgz#69156f8a2caa78fbb5515813d722bf1095ef07d9"
+  integrity sha512-V6HVc5JA8NdZfJSnYBSZiP7BttOB/3zPEGHB/sD/vNzDsIYyMhy5OWeHaonePNcAq90wLQn/1WEaWzh2x8PLOQ==
+  dependencies:
+    c-preprocessor "^0.2.12"
+    loader-utils "^1.1.0"
+
+c-preprocessor@^0.2.12:
+  version "0.2.12"
+  resolved "https://registry.yarnpkg.com/c-preprocessor/-/c-preprocessor-0.2.12.tgz#b92eb42835f7cc5d343e00e3017de2a9aaa611bf"
+  integrity sha1-uS60KDX3zF00PgDjAX3iqaqmEb8=
+
 cacache@^10.0.4:
   version "10.0.4"
   resolved "https://registry.yarnpkg.com/cacache/-/cacache-10.0.4.tgz#6452367999eff9d4188aefd9a14e9d7c6a263460"

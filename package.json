@@ -5,6 +5,7 @@
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
     "babel-plugin-styled-components": "^1.8.0",
+    "c-preprocessor-loader": "^1.0.0",
     "fp-ts": "^1.16.1",
     "gatsby": "^2.0.19",
     "gatsby-plugin-manifest": "^2.0.5",

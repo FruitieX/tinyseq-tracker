@@ -1,7 +1,7 @@
 import React from 'react';
 
 // @ts-ignore
-import initDemo from '!!raw-loader!../demo';
+import initDemo from '../demo.js.txt';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -11,8 +11,8 @@ const Wrapper = styled.div`
 
 export class Preview extends React.PureComponent {
   componentDidMount() {
-    const fragmentShader = require('raw-loader!../fragment.glsl');
-    const vertexShader = require('raw-loader!../vertex.glsl');
+    const fragmentShader = require('../fragment.glsl');
+    const vertexShader = require('../vertex.glsl');
 
     const src = initDemo
       .replace("require('./fragment.glsl')", `\`${fragmentShader}\``)

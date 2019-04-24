@@ -36,7 +36,8 @@
     "develop": "gatsby develop",
     "format": "prettier --write '**/*.ts' '**/*.tsx' '**/*.js' '**/*.json'",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run develop"
+    "start": "npm run develop",
+    "start_remote": "yarn gatsby develop -H 0.0.0.0 -S"
   },
   "husky": {
     "hooks": {

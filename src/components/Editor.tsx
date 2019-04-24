@@ -22,7 +22,7 @@ import { setOctave, setNoteSkip } from '../state/editor';
 import { Preview } from './Preview';
 
 import { range } from 'fp-ts/es6/Array';
-// import FileManager from './FileManager';
+import FileManager from './FileManager';
 
 const NoteToolbar = styled.div`
   grid-area: note-toolbar;
@@ -36,13 +36,13 @@ const TrackerWrapper = styled.div`
   gap: 1rem;
 
   grid-template-rows: auto 1fr 3fr auto;
-  /* grid-template-columns: 1fr 4fr; */
+  grid-template-columns: auto auto auto;
 
   grid-template-areas:
-    'playback-toolbar   instruments'
-    'patterns           preview'
-    'main-editor        preview'
-    'note-toolbar       preview';
+    'playback-toolbar   instruments   file-manager'
+    'patterns           preview       preview'
+    'main-editor        preview       preview'
+    'note-toolbar       preview       preview';
 
   overflow: hidden;
 `;
@@ -169,7 +169,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <SoundFactory instrumentRef={this.instrumentRef} />
         <InstrumentManager ref={this.instrumentRef} />
         <Preview />
-        {/* <FileManager /> */}
+        <FileManager />
       </TrackerWrapper>
     );
   }

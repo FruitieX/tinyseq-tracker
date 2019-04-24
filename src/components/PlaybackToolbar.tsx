@@ -120,6 +120,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
 
   tickNotes = () => {
     const currentTime = new Date().getTime() - this.props.playbackStarted;
+
     if (currentTime >= getSongLength(this.props.song)) {
       this.props.togglePlayback();
     } else {
@@ -127,6 +128,7 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
       const notes = this.props.song
         .map(i => i.notes[i.patterns[newPos.pattern] - 1])
         .map(n => (n === undefined ? '' : n.charAt(newPos.row)));
+
       if (this.props.instrumentRef.current) {
         this.props.instrumentRef.current
           // @ts-ignore: this is fine
@@ -154,13 +156,20 @@ export class PlaybackHandler extends React.Component<PlaybackProps> {
     this.props.resetPlayback();
   };
 
-  componentDidUpdate() {
-    if (this.props.playback === 'playing') {
+  componentDidUpdate(prevProps: PlaybackProps) {
+    if (prevProps.playback !== 'playing' && this.props.playback === 'playing') {
+      // Just started playback
+      window.clearInterval(this.intervalID);
+      this.tickNotes();
       this.intervalID = window.setInterval(
         this.tickNotes,
         this.props.song[0].rowDuration * 1000,
       );
-    } else {
+    } else if (
+      prevProps.playback !== 'paused' &&
+      this.props.playback === 'paused'
+    ) {
+      // Just paused playback
       window.clearInterval(this.intervalID);
     }
   }

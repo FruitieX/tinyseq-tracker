@@ -166,7 +166,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <NoteEditor />
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
         <PlaybackHandler instrumentRef={this.instrumentRef} />
-        <SoundFactory />
+        <SoundFactory instrumentRef={this.instrumentRef} />
         <InstrumentManager ref={this.instrumentRef} />
         <Preview />
         {/* <FileManager /> */}

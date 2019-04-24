@@ -70,6 +70,15 @@ export class SoundFactory extends React.Component<SoundFactoryProps> {
   addSawTooth = () => {
     this.addWaveform('1-((f*t)%1)*2');
   };
+
+  addTriangle = () => {
+    this.addWaveform('Math.abs(((2*f*t)%2-1))*2-1');
+  };
+
+  addSquare = () => {
+    this.addWaveform('(f*t)%2 >1?1:-1');
+  };
+
   addWaveform = (waveform: string) => {
     const current_waveform = this.getWaveform();
 
@@ -96,6 +105,16 @@ export class SoundFactory extends React.Component<SoundFactoryProps> {
           type="button"
           value="Add sawtooth"
           onClick={this.addSawTooth}
+        />
+        <AddWaveButton
+          type="button"
+          value="Add triangle"
+          onClick={this.addTriangle}
+        />
+        <AddWaveButton
+          type="button"
+          value="Add square"
+          onClick={this.addSquare}
         />
       </SoundFactoryContainer>
     );

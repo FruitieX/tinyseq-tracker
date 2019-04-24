@@ -26,6 +26,11 @@ const initialState: PlayerState = {
   timeSinceStart: 0,
 };
 
+// terrible globals for demo
+(window as any).playbackStarted = 0;
+(window as any).timeSinceStart = 0;
+(window as any).playback = 'paused';
+
 export const playerReducer: Reducer<PlayerState, PlayerActions> = (
   state = initialState,
   action,
@@ -35,23 +40,48 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
       case getType(togglePlayback):
         if (state.playback === 'playing') {
           draft.playback = 'paused';
-          draft.timeSinceStart = new Date().getTime() - state.playbackStarted;
+
+          const timeSinceStart = new Date().getTime() - state.playbackStarted;
+          draft.timeSinceStart = timeSinceStart;
+
           console.log('Playback paused');
+
+          // terrible globals for demo
+          (window as any).timeSinceStart = timeSinceStart;
+          (window as any).playback = 'paused';
         } else {
           draft.playback = 'playing';
-          draft.playbackStarted = new Date().getTime() - draft.timeSinceStart;
+
+          const playbackStarted = new Date().getTime() - draft.timeSinceStart;
+          draft.playbackStarted = playbackStarted;
+
           console.log('Playback started');
+
+          // terrible globals for demo
+          (window as any).playbackStarted = playbackStarted;
+          (window as any).playback = 'playing';
         }
         break;
-      case getType(resetPlayback):
+      case getType(resetPlayback): {
         console.log('resetting playback time');
         draft.timeSinceStart = 0;
-        draft.playbackStarted = new Date().getTime();
+        const playbackStarted = new Date().getTime();
+        draft.playbackStarted = playbackStarted;
         draft.playback = 'paused';
+
+        // terrible globals for demo
+        (window as any).timeSinceStart = action.payload;
+        (window as any).playbackStarted = playbackStarted;
+        (window as any).playback = 'paused';
         break;
-      case getType(setTime):
+      }
+      case getType(setTime): {
         // console.log(action.payload);
         draft.timeSinceStart = action.payload;
+
+        // terrible globals for demo
+        (window as any).timeSinceStart = action.payload;
         break;
+      }
     }
   });

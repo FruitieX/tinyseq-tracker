@@ -6,7 +6,21 @@ HEIGHT = 720;
 // W.style.margin = -8;
 (W.width = WIDTH), (W.height = HEIGHT);
 
-for (i in (A = new AudioContext())) A[i[0] + i[6]] = A[i];
+// for (i in (A = new AudioContext())) A[i[0] + i[6]] = A[i];
+
+// mock AudioContext which returns currentTime from editor
+A = {
+  get currentTime() {
+    if (timeSinceStart === 0 && playback === 'paused') {
+      return 0;
+    } else if (playback === 'paused') {
+      return timeSinceStart;
+    } else {
+      return new Date().getTime() - playbackStarted;
+    }
+  },
+};
+
 for (i in (g = W.getContext`webgl`)) g[i[0] + i[6]] = g[i];
 
 // NOTE: 2nd argument to drawArrays used to be 0, but undefined works
@@ -15,13 +29,10 @@ for (i in (g = W.getContext`webgl`)) g[i[0] + i[6]] = g[i];
     // g.TRIANGLE_FAN = 6
     6,
 
-    // a.xy = resolution
-    // a.z = time (s)
-    // a.w = bass
     g.uniform4f(
       // g.getUniformLocation
       g.gf(P, 'Z'),
-      0,
+      A.currentTime / 1000,
       0,
 
       // blue channel reacts to instrument envelope / volume

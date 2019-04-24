@@ -70,7 +70,7 @@ export const playerReducer: Reducer<PlayerState, PlayerActions> = (
         draft.playback = 'paused';
 
         // terrible globals for demo
-        (window as any).timeSinceStart = action.payload;
+        (window as any).timeSinceStart = 0;
         (window as any).playbackStarted = playbackStarted;
         (window as any).playback = 'paused';
         break;

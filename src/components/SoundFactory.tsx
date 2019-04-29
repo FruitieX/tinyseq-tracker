@@ -14,10 +14,35 @@ const Input = styled.input`
   ${baseInput};
 `;
 
+const SlideNumInput = styled.input`
+  ${baseInput};
+  width: 50px;
+  padding: 0;
+  padding-left: 5px;
+  border: none;
+  height: initial;
+  &:focus {
+    border: 1px solid gray;
+    background: #666;
+    height: 18px;
+    padding-left: 4px;
+  }
+`;
+// style={{width: "40px", padding: "0", paddingLeft: "5px", border: "none", height: "initial"}}
 const AddWaveButton = styled.input`
   ${baseButton};
   text-align: center;
   width: 120px;
+`;
+
+const InstrumentPropertyContainer = styled.div``;
+
+const Slider = styled.input`
+  &::-webkit-slider-thumb {
+    background-color: #f00 !important;
+    background: #f00 !important;
+    color: #f00 !important;
+  }
 `;
 
 interface SoundFactoryProps {
@@ -88,6 +113,25 @@ export class SoundFactory extends React.Component<SoundFactoryProps> {
     });
   };
 
+  renderSlider(id: string, description = '') {
+    const instrument = this.props.loadedSong[this.props.selectedTrack];
+    // @ts-ignore: this is fine
+    const val = parseFloat(instrument[id]);
+    return (
+      <div>
+        <span style={{ marginRight: '10px' }}>{description}</span>
+        <Slider
+          type="range"
+          min="0"
+          max="1"
+          value={val}
+          style={{ width: '50px' }}
+        />
+        <SlideNumInput id={'slider' + id} value={val} />
+      </div>
+    );
+  }
+
   render() {
     return (
       <SoundFactoryContainer>
@@ -116,6 +160,13 @@ export class SoundFactory extends React.Component<SoundFactoryProps> {
           value="Add square"
           onClick={this.addSquare}
         />
+        <InstrumentPropertyContainer>
+          {this.renderSlider('volume', 'Vol')}
+          {this.renderSlider('attack', 'Atk')}
+          {this.renderSlider('sustain', 'Sus')}
+          {this.renderSlider('decay', 'Dec')}
+          {this.renderSlider('release', 'Rel')}
+        </InstrumentPropertyContainer>
       </SoundFactoryContainer>
     );
   }

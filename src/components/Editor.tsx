@@ -1,28 +1,24 @@
 import React from 'react';
 import styled from 'styled-components';
+import { observer } from 'mobx-react';
+import { playerState } from '../state/player';
+import { editorState } from '../state/editor';
+import { songState } from '../state/song';
 
 import song from '../../song.json';
-import { parseSong, TSSong, Song } from '../types/instrument';
+import { parseSong, TSSong } from '../types/instrument';
 import SoundFactory from './SoundFactory';
 import PlaybackHandler from './PlaybackToolbar';
 
-import { connect } from 'react-redux';
-import { RootState } from '../state/rootReducer';
-import { setSong } from '../state/song';
-import { DeepReadonly } from 'utility-types';
-import { togglePlayback, updateTime, PlaybackState } from '../state/player';
 import PatternWrapper from './PatternWrapper';
-import InstrumentManager, {
-  InstrumentInstance,
-  InstrumentManager as UnwrappedInstrumentManager,
-} from './Instrument';
+import InstrumentManager, { playNote } from './Instrument';
 import { keyboard2noteMapping } from '../utils/constants';
 import NoteEditor from './NoteEditor';
-import { setOctave, setNoteSkip } from '../state/editor';
 import { Preview } from './Preview';
 
 import { range } from 'fp-ts/es6/Array';
 import FileManager from './FileManager';
+import { noteCharToSound } from './Track';
 
 const NoteToolbar = styled.div`
   grid-area: note-toolbar;
@@ -51,47 +47,26 @@ const GraphWrapper = styled.div`
   grid-area: header;
 `;
 
-interface EditorProps {
-  loadedSong: DeepReadonly<Song>;
-  setSong: typeof setSong;
-  setOctave: typeof setOctave;
-  setNoteSkip: typeof setNoteSkip;
-
-  playback: PlaybackState;
-  togglePlayback: () => void;
-  updateTime: () => void;
-  currentOctave: number;
-  noteSkip: number;
-  setTime: (time: number) => void;
-  activeTrack: number;
-}
-
-interface EditorState {
-  player?: InstrumentInstance;
-}
-
-export class Editor extends React.Component<EditorProps, EditorState> {
+// TODO: refactor as FunctionComponent and move to using mobx-react-lite
+@observer
+export class Editor extends React.Component {
   timerHandle?: number;
 
-  instrumentRef = React.createRef<UnwrappedInstrumentManager>();
-
   handleKeyDown = (ev: KeyboardEvent) => {
-    const { currentOctave } = this.props;
-
     switch (ev.code) {
       case 'Space': // Spacebar
-        this.props.togglePlayback();
+        playerState.togglePlayback();
         break;
 
       // keyboard piano
       default:
         const note = keyboard2noteMapping[ev.code];
 
-        if (note !== undefined && this.instrumentRef.current) {
-          const notes = range(0, this.props.loadedSong.length - 1).map(
+        if (note !== undefined) {
+          const notes = range(0, songState.loaded.length - 1).map(
             (_, index) => {
-              if (index === this.props.activeTrack) {
-                return String.fromCharCode(35 + note + 12 * currentOctave);
+              if (index === editorState.track) {
+                return String.fromCharCode(35 + note + 12 * editorState.octave);
               }
 
               return ' ';
@@ -99,10 +74,14 @@ export class Editor extends React.Component<EditorProps, EditorState> {
           );
 
           // Play notes instantly
-          this.instrumentRef.current
-            // @ts-ignore: this is fine
-            .getWrappedInstance()
-            .playNotes(notes);
+          console.log('playing notes ', ...notes);
+
+          notes.forEach((n, i) =>
+            playNote(
+              playerState.instrumentInstances[i],
+              noteCharToSound(n) - 33,
+            ),
+          );
         }
         break;
     }
@@ -112,7 +91,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     // console.log(this.props);
     // const { setSong } = this.props;
     // console.log('there', setSong);
-    this.props.setSong(parseSong(song as TSSong));
+    songState.setSong(parseSong(song as TSSong));
     document.addEventListener('keydown', this.handleKeyDown);
   }
 
@@ -122,25 +101,21 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   }
 
   handleOctaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { setOctave } = this.props;
-    setOctave({ value: Number(e.target.value) });
+    editorState.setOctave(Number(e.target.value));
   };
 
   handleNoteSkipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { setNoteSkip } = this.props;
-    setNoteSkip({ value: Number(e.target.value) });
+    editorState.setNoteSkip(Number(e.target.value));
   };
 
   renderToolbar = () => {
-    const { currentOctave, noteSkip } = this.props;
-
     return (
       <div>
         <span>Oct</span>
         <input
           id="octave"
           type="number"
-          value={currentOctave}
+          value={editorState.octave}
           onChange={this.handleOctaveChange}
           min="0"
           max="9"
@@ -149,7 +124,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <input
           id="noteSkip"
           type="number"
-          value={noteSkip}
+          value={editorState.noteSkip}
           onChange={this.handleNoteSkipChange}
           min="1"
           max="32"
@@ -165,9 +140,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         <GraphWrapper />
         <NoteEditor />
         <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
-        <PlaybackHandler instrumentRef={this.instrumentRef} />
-        <SoundFactory instrumentRef={this.instrumentRef} />
-        <InstrumentManager ref={this.instrumentRef} />
+        <PlaybackHandler />
+        <SoundFactory />
+        <InstrumentManager />
         <Preview />
         <FileManager />
       </TrackerWrapper>
@@ -175,25 +150,4 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   }
 }
 
-const mapStateToProps = (state: RootState) => ({
-  loadedSong: state.song.loaded,
-  playback: state.player.playback,
-  playbackStarted: state.player.playbackStarted,
-  currentOctave: state.editor.octave,
-  noteSkip: state.editor.noteSkip,
-  activeTrack: state.editor.track,
-});
-
-const mapDispatchToProps = {
-  setSong,
-  togglePlayback,
-  updateTime,
-  setOctave,
-  setNoteSkip,
-  // editSong: (editSongParams: EditSong) => dispatch(editSong(editSongParams)),
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Editor);
+export default Editor;

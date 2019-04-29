@@ -1,20 +1,18 @@
 import styled from 'styled-components';
 import * as React from 'react';
-import { RootState } from '../state/rootReducer';
-import { connect } from 'react-redux';
-import { addPattern, removePattern, editPattern } from '../state/song';
-import { Song, Instrument } from '../types/instrument';
+import { Instrument } from '../types/instrument';
 import { DeepReadonly } from 'utility-types';
-import { changePattern } from '../state/editor';
 import {
   baseButton,
   baseInput,
   BaseInputProps,
   gridCell,
-  GridCellProps,
   borderStyle,
   border,
 } from '../utils/styles';
+import { observer } from 'mobx-react';
+import { songState } from '../state/song';
+import { editorState } from '../state/editor';
 
 const PatternContainer = styled.div`
   display: grid;
@@ -72,41 +70,30 @@ const AddRemovePatternButton = styled.button`
   flex: 1;
 `;
 
-interface Props {
-  loadedSong: DeepReadonly<Song>;
-  addPattern: typeof addPattern;
-  removePattern: typeof removePattern;
-  editPattern: typeof editPattern;
-  currentPattern: number;
-  changePattern: typeof changePattern;
-}
-
-class PatternWrapper extends React.Component<Props> {
+// TODO: refactor as FunctionComponent and move to using mobx-react-lite
+@observer
+class PatternWrapper extends React.Component {
   handlePatternChange = (trackId: number, patternId: number, value: number) => {
     if (value < 0) return;
 
-    if (value < this.props.loadedSong[trackId].patterns.length) {
-      this.props.editPattern({
-        trackId,
-        patternId,
-        value,
-      });
+    if (value < songState.loaded[trackId].patterns.length) {
+      songState.editPattern(trackId, patternId, value);
     } else {
       // add empty pattern to last place
-      this.props.addPattern({
+      songState.addPattern(
         trackId,
-        notes: Array(
-          this.props.loadedSong[trackId].notes[
-            this.props.loadedSong[trackId].notes.length - 1
+        Array(
+          songState.loaded[trackId].notes[
+            songState.loaded[trackId].notes.length - 1
           ].length + 1,
         ).join(' '),
-      });
+      );
       // put the current input field value to the created pattern index value
-      this.props.editPattern({
+      songState.editPattern(
         trackId,
         patternId,
-        value: this.props.loadedSong[trackId].patterns.length,
-      });
+        songState.loaded[trackId].patterns.length,
+      );
     }
   };
 
@@ -125,32 +112,30 @@ class PatternWrapper extends React.Component<Props> {
   ) => {
     if (event.shiftKey) {
       // copy the previous pattern to last place
-      this.props.addPattern({
+      songState.addPattern(
         trackId,
-        notes: this.props.loadedSong[trackId].notes[this.props.currentPattern],
-      });
+        songState.loaded[trackId].notes[editorState.pattern],
+      );
     } else {
       // add empty pattern to last place
-      this.props.addPattern({
+      songState.addPattern(
         trackId,
-        notes: Array(
-          this.props.loadedSong[trackId].notes[
-            this.props.loadedSong[trackId].notes.length - 1
+        Array(
+          songState.loaded[trackId].notes[
+            songState.loaded[trackId].notes.length - 1
           ].length + 1,
         ).join(' '),
-      });
+      );
     }
   };
 
   handleRemovePattern = (trackId: number) => () => {
-    this.props.removePattern({
-      trackId,
-    });
+    songState.removePattern(trackId);
   };
 
   handleClick = (patternIndex: number) => {
     // set current pattern to the pattern index that that was clicked on
-    this.props.changePattern({ pattern: patternIndex });
+    editorState.changePattern(patternIndex);
   };
 
   incrementPattern = (
@@ -161,7 +146,7 @@ class PatternWrapper extends React.Component<Props> {
     this.handlePatternChange(
       trackId,
       patternIndex,
-      this.props.loadedSong[trackId].patterns[patternIndex] + offset,
+      songState.loaded[trackId].patterns[patternIndex] + offset,
     );
 
   renderTrack = (instrument: DeepReadonly<Instrument>, trackId: number) => {
@@ -175,10 +160,10 @@ class PatternWrapper extends React.Component<Props> {
           onClick={this.incrementPattern(trackId, patternIndex, -1)}
         >{`-`}</SelectPatternButton>
         <SelectPatternInput
-          active={this.props.currentPattern === patternIndex}
+          active={editorState.pattern === patternIndex}
           value={pattern}
           onChange={this.handlePatternInputChange(trackId, patternIndex)}
-          onClick={e => this.handleClick(patternIndex)}
+          onClick={() => this.handleClick(patternIndex)}
         />
         <SelectPatternButton
           onClick={this.incrementPattern(trackId, patternIndex, +1)}
@@ -214,27 +199,12 @@ class PatternWrapper extends React.Component<Props> {
     return (
       <PatternArea>
         <PatternContainer>
-          {this.props.loadedSong.map(this.renderTrack)}
-          {this.props.loadedSong.map(this.renderButtons)}
+          {songState.loaded.map(this.renderTrack)}
+          {songState.loaded.map(this.renderButtons)}
         </PatternContainer>
       </PatternArea>
     );
   }
 }
 
-const mapStateToProps = (state: RootState) => ({
-  loadedSong: state.song.loaded,
-  currentPattern: state.editor.pattern,
-});
-
-const mapDispatchToProps = {
-  editPattern,
-  addPattern,
-  removePattern,
-  changePattern,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PatternWrapper);
+export default PatternWrapper;

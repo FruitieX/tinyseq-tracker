@@ -1,13 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Song } from '../types/instrument';
-
-import { connect } from 'react-redux';
-import { RootState } from '../state/rootReducer';
-import { setSong } from '../state/song';
-import { DeepReadonly } from 'utility-types';
+import { songState } from '../state/song';
 import { baseButton } from '../utils/styles';
+import { observer } from 'mobx-react';
 
 const Wrapper = styled.div`
   grid-area: file-manager;
@@ -29,11 +25,6 @@ const UploadButton = styled.label`
   padding-right: 8px;
   margin-right: 16px;
 `;
-
-interface FileManagerProps {
-  loadedSong: DeepReadonly<Song>;
-  setSong: typeof setSong;
-}
 
 // Function to download data to a file
 // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
@@ -57,13 +48,15 @@ function download(data: string, filename: string, type: string) {
   }
 }
 
-export class FileManager extends React.Component<FileManagerProps> {
+// TODO: refactor as FunctionComponent and move to using mobx-react-lite
+@observer
+export class FileManager extends React.Component {
   load = (e: React.ChangeEvent<HTMLInputElement>) => {
     var reader = new FileReader();
 
     reader.onload = () => {
       if (reader.result) {
-        this.props.setSong(JSON.parse(reader.result.toString()));
+        songState.setSong(JSON.parse(reader.result.toString()));
       }
     };
 
@@ -74,7 +67,7 @@ export class FileManager extends React.Component<FileManagerProps> {
 
   save = () =>
     download(
-      JSON.stringify(this.props.loadedSong, null, 2),
+      JSON.stringify(songState.loaded, null, 2),
       'song.json',
       'application/json',
     );
@@ -95,15 +88,4 @@ export class FileManager extends React.Component<FileManagerProps> {
   }
 }
 
-const mapStateToProps = (state: RootState) => ({
-  loadedSong: state.song.loaded,
-});
-
-const mapDispatchToProps = {
-  setSong,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(FileManager);
+export default FileManager;

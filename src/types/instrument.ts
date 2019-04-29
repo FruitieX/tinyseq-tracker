@@ -42,6 +42,12 @@ export interface Instrument {
   release: Release;
 }
 
+export interface InstrumentInstance {
+  ctx: AudioContext;
+  node: AudioWorkletNode;
+  instrument: Instrument;
+}
+
 export const patternLength = (notes: String, secsPerRow: number): number => {
   // console.log(notes, secsPerRow);
   if (notes === undefined) return 0;

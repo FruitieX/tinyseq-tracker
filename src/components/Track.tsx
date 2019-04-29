@@ -28,15 +28,15 @@ const NoteContainer = styled.div<INoteContainerProps>`
     props.selected
       ? colors.active.fg
       : props.rowActive
-        ? colors.hover.fg
-        : colors.inactive.fg};
+      ? colors.hover.fg
+      : colors.inactive.fg};
 
   background-color: ${props =>
     props.selected
       ? colors.active.bg
       : props.rowActive
-        ? colors.hover.bg
-        : colors.inactive.bg};
+      ? colors.hover.bg
+      : colors.inactive.bg};
 `;
 
 interface Code2Note {
@@ -132,3 +132,5 @@ export class Track extends React.Component<Props> {
     );
   }
 }
+
+export default Track;

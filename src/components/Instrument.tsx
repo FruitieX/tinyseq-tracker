@@ -1,20 +1,11 @@
-import React from 'react';
-import { Instrument } from '../types/instrument';
+import * as React from 'react';
+import { Instrument, InstrumentInstance } from '../types/instrument';
 
-import { RootState } from '../state/rootReducer';
-import { connect } from 'react-redux';
 import { noteCharToSound } from './Track';
-
-interface Props {
-  instruments: Instrument[];
-  currentTrack: number;
-}
-
-interface State {
-  instrumentInstance?: InstrumentInstance;
-  instrumentInstances?: InstrumentInstance[];
-  loadedInstruments?: Instrument[];
-}
+import { songState } from '../state/song';
+import { observer } from 'mobx-react-lite';
+import { editorState } from '../state/editor';
+import { playerState } from '../state/player';
 
 // TODO: put these in config
 const I_WAVEFORM = 0;
@@ -26,12 +17,6 @@ const I_ATTACK = 5;
 const I_DECAY = 6;
 const I_SUSTAIN = 7;
 const I_RELEASE = 8;
-
-export interface InstrumentInstance {
-  ctx: AudioContext;
-  node: AudioWorkletNode;
-  instrument: Instrument;
-}
 
 export const initInstrument = async (
   instrument: Instrument,
@@ -98,7 +83,7 @@ export const initInstrument = async (
 };
 
 export const playNote = (
-  instrumentInstance: InstrumentInstance,
+  instrumentInstance: InstrumentInstance | undefined,
   note: number,
 ) => {
   if (!instrumentInstance)
@@ -172,75 +157,28 @@ export const playNote = (
   // ADSR(node.parameters.get('e'), instrument.volume * instrument.sustain);
 };
 
-export class InstrumentManager extends React.Component<Props, State> {
-  state: State = {};
-
-  refreshInstruments = async () => {
+// TODO: move this state stuff into MobX, doing this in React is silly :D
+export const InstrumentManager: React.FunctionComponent = observer(() => {
+  const refreshInstruments = async () => {
     console.log('refreshing instruments');
-    if (this.state.instrumentInstances) {
-      this.state.instrumentInstances.map(i => i.ctx.close());
-    }
+    playerState.instrumentInstances.map(i => i.ctx.close());
 
-    // clean, beautiful global variables
-    (window as any).i = [];
-
-    const instruments = this.props.instruments;
+    const instruments = songState.loaded;
 
     if (!instruments) return;
 
-    const instrumentInstances = await Promise.all(
-      instruments.map(initInstrument),
-    );
-    (window as any).i = instrumentInstances;
+    const newInstances = await Promise.all(instruments.map(initInstrument));
+    // clean, beautiful global variables
+    (window as any).i = newInstances;
 
-    this.setState(() => ({
-      instrumentInstances: instrumentInstances,
-      loadedInstruments: instruments,
-    }));
+    playerState.setInstrumentInstances(newInstances);
   };
 
-  componentDidMount() {
-    this.refreshInstruments();
-  }
+  React.useEffect(() => {
+    refreshInstruments();
+  }, [editorState.track]);
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.currentTrack !== this.props.currentTrack) {
-      this.setState(() => ({
-        instrumentInstance:
-          this.state.instrumentInstances === undefined
-            ? undefined
-            : this.state.instrumentInstances[this.props.currentTrack],
-      }));
-    }
-  }
-
-  playNotes = (notes: string[]) => {
-    console.log('playing notes ', ...notes);
-
-    const instrumentInstances = this.state.instrumentInstances;
-
-    if (!instrumentInstances) return;
-
-    notes.forEach((n, i) =>
-      playNote(instrumentInstances[i], noteCharToSound(n) - 33),
-    );
-  };
-
-  render() {
-    return null;
-  }
-}
-
-const mapStateToProps = (state: RootState) => ({
-  instruments: state.song.loaded,
-  currentTrack: state.editor.track,
-  playback: state.player.playback,
-  playbackStarted: state.player.playbackStarted,
+  return null;
 });
 
-export default connect(
-  mapStateToProps,
-  null,
-  null,
-  { withRef: true },
-)(InstrumentManager);
+export default InstrumentManager;

@@ -39,7 +39,7 @@ for (i in (g = W.getContext`webgl`)) g[i[0] + i[6]] = g[i];
       0,
 
       // blue channel reacts to instrument envelope / volume
-      i && i[0].node && i[0].node.parameters.get('e').value * 1,
+      i && i[0] && i[0].node && i[0].node.parameters.get('e').value * 1,
 
       (Z = requestAnimationFrame(R, (T = t))),
     ),

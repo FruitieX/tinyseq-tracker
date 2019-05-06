@@ -53,7 +53,7 @@ export const baseSlider = css`
     height: 8px;
     width: 8px;
     cursor: pointer;
-    &: hover {
+    &:hover {
       background: #555;
     }
   }

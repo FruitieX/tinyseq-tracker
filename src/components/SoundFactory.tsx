@@ -121,7 +121,9 @@ export const SoundFactory: React.FunctionComponent = observer(() => {
           max="1"
           step=".01"
           value={val}
-          onChange={e => handleInstrumentPropertyChange(key, e)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleInstrumentPropertyChange(key, e)
+          }
         />
         <SlideNumInput id={'slider' + key} value={val.toFixed(2)} />
       </div>

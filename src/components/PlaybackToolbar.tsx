@@ -1,17 +1,14 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
-import { RootState } from '../state/rootReducer';
-import {
-  togglePlayback,
-  PlaybackState,
-  resetPlayback,
-  PlayerState,
-} from '../state/player';
-import { changeRow, changePattern } from '../state/editor';
-import { connect } from 'react-redux';
-import { Song, getSongLength, time2instrumentPos } from '../types/instrument';
-import { InstrumentManager } from './Instrument';
+import styled from 'styled-components';
+import { PlaybackState, playerState } from '../state/player';
+import { editorState } from '../state/editor';
+import { getSongLength, time2instrumentPos } from '../types/instrument';
+import { playNote } from '../utils/playNote';
 import { baseButton } from '../utils/styles';
+import { noteCharToSound } from './Track';
+import { songState } from '../state/song';
+import { observer } from 'mobx-react-lite';
+import { instrumentsState } from '../state/instruments';
 
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
@@ -30,18 +27,6 @@ const PlayButton = styled.button`
 const StopButton = styled.button`
   ${baseButton} width: 32px;
 `;
-
-interface PlaybackProps {
-  playback: PlaybackState;
-  togglePlayback: typeof togglePlayback;
-  resetPlayback: typeof resetPlayback;
-  playbackStarted: PlayerState['playbackStarted'];
-  timeSinceStart: number;
-  song: Song;
-  changeRow: typeof changeRow;
-  changePattern: typeof changePattern;
-  instrumentRef: React.RefObject<InstrumentManager>;
-}
 
 const padNumber = (num: number, pad: number, c?: string): string => {
   c = c || '0';
@@ -115,104 +100,82 @@ export class Timer extends React.Component<TimerProps> {
   }
 }
 
-export class PlaybackHandler extends React.Component<PlaybackProps> {
-  intervalID: number = 0;
+export const PlaybackHandler: React.FunctionComponent = observer(() => {
+  const [intervalId, setIntervalId] = React.useState(0);
 
-  tickNotes = () => {
-    const currentTime = new Date().getTime() - this.props.playbackStarted;
+  const tickNotes = () => {
+    const currentTime = new Date().getTime() - playerState.playbackStarted;
 
-    if (currentTime >= getSongLength(this.props.song)) {
-      this.props.togglePlayback();
+    if (currentTime >= getSongLength(songState.loaded)) {
+      playerState.togglePlayback();
     } else {
-      const newPos = time2instrumentPos(currentTime, this.props.song, 0);
-      const notes = this.props.song
+      const newPos = time2instrumentPos(currentTime, songState.loaded, 0);
+      const notes = songState.loaded
         .map(i => i.notes[i.patterns[newPos.pattern] - 1])
         .map(n => (n === undefined ? '' : n.charAt(newPos.row)));
 
-      if (this.props.instrumentRef.current) {
-        this.props.instrumentRef.current
-          // @ts-ignore: this is fine
-          .getWrappedInstance()
-          .playNotes(notes);
-      }
-      this.props.changeRow({ value: newPos.row });
-      this.props.changePattern({ pattern: newPos.pattern });
-    }
-  };
+      // Play notes instantly
+      console.log('playing notes ', ...notes);
 
-  togglePlayback = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // don't leave button focused after click
-    e.currentTarget.blur();
-
-    this.props.togglePlayback();
-  };
-
-  stopPlayback = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // don't leave button focused after click
-    e.currentTarget.blur();
-
-    this.props.changeRow({ value: 0 });
-    this.props.changePattern({ pattern: 0 });
-    this.props.resetPlayback();
-  };
-
-  componentDidUpdate(prevProps: PlaybackProps) {
-    if (prevProps.playback !== 'playing' && this.props.playback === 'playing') {
-      // Just started playback
-      window.clearInterval(this.intervalID);
-      this.tickNotes();
-      this.intervalID = window.setInterval(
-        this.tickNotes,
-        this.props.song[0].rowDuration * 1000,
+      notes.forEach((n, i) =>
+        playNote(instrumentsState.instances[i], noteCharToSound(n) - 33),
       );
-    } else if (
-      prevProps.playback !== 'paused' &&
-      this.props.playback === 'paused'
-    ) {
-      // Just paused playback
-      window.clearInterval(this.intervalID);
+
+      editorState.changeRow({ value: newPos.row });
+      editorState.changePattern(newPos.pattern);
     }
-  }
+  };
 
-  render() {
-    const songLength = getSongLength(this.props.song);
+  const togglePlayback = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // don't leave button focused after click
+    e.currentTarget.blur();
 
-    return (
-      <PlaybackToolbar>
-        <PlayButton onClick={this.togglePlayback}>
-          {this.props.playback === 'paused' ? '▶' : '❚❚'}
-          {/* {this.props.playback} */}
-        </PlayButton>
-        <StopButton onClick={this.stopPlayback}>■</StopButton>
-        <span>
-          <Timer
-            startTime={this.props.playbackStarted}
-            timeSinceStart={this.props.timeSinceStart}
-            playerState={this.props.playback}
-          />
-        </span>
-        &nbsp;/&nbsp;
-        <span>{mstime2MMSSms(songLength)}</span>
-      </PlaybackToolbar>
-    );
-  }
-}
+    playerState.togglePlayback();
+  };
 
-const mapStateToProps = (state: RootState) => ({
-  playback: state.player.playback,
-  playbackStarted: state.player.playbackStarted,
-  timeSinceStart: state.player.timeSinceStart,
-  song: state.song.loaded,
+  const stopPlayback = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // don't leave button focused after click
+    e.currentTarget.blur();
+
+    editorState.changeRow({ value: 0 });
+    editorState.changePattern(0);
+    playerState.resetPlayback();
+  };
+
+  React.useEffect(() => {
+    if (playerState.playback === 'playing') {
+      // Just started playback
+      window.clearInterval(intervalId);
+      tickNotes();
+      setIntervalId(
+        window.setInterval(tickNotes, songState.loaded[0].rowDuration * 1000),
+      );
+    } else {
+      // Just paused playback
+      window.clearInterval(intervalId);
+    }
+  }, [playerState.playback]);
+
+  const songLength = getSongLength(songState.loaded);
+
+  return (
+    <PlaybackToolbar>
+      <PlayButton onClick={togglePlayback}>
+        {playerState.playback === 'paused' ? '▶' : '❚❚'}
+        {/* {this.props.playback} */}
+      </PlayButton>
+      <StopButton onClick={stopPlayback}>■</StopButton>
+      <span>
+        <Timer
+          startTime={playerState.playbackStarted}
+          timeSinceStart={playerState.timeSinceStart}
+          playerState={playerState.playback}
+        />
+      </span>
+      &nbsp;/&nbsp;
+      <span>{mstime2MMSSms(songLength)}</span>
+    </PlaybackToolbar>
+  );
 });
 
-const mapDispatchToProps = {
-  togglePlayback,
-  resetPlayback,
-  changeRow,
-  changePattern,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PlaybackHandler);
+export default PlaybackHandler;

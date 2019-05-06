@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { RootState } from '../state/rootReducer';
-import { connect } from 'react-redux';
-import { SongState, editSong } from '../state/song';
+import { songState } from '../state/song';
 import { baseInput, baseButton } from '../utils/styles';
-import { InstrumentManager } from './Instrument';
+import { editorState } from '../state/editor';
+import { observer } from 'mobx-react-lite';
+import { instrumentsState } from '../state/instruments';
 
 const SoundFactoryContainer = styled.div`
   grid-area: instruments;
@@ -45,78 +45,63 @@ const Slider = styled.input`
   }
 `;
 
-interface SoundFactoryProps {
-  selectedTrack: number;
-  loadedSong: SongState['loaded'];
-  editSong: typeof editSong;
-  instrumentRef: React.RefObject<InstrumentManager>;
-}
-
-export class SoundFactory extends React.Component<SoundFactoryProps> {
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.props.editSong({
-      waveform: event.target.value,
-      trackIndex: this.props.selectedTrack,
-    });
+export const SoundFactory: React.FunctionComponent = observer(() => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    songState.editWaveform(editorState.track, event.target.value);
   };
 
-  componentDidUpdate(prevProps: any) {
-    if (
-      this.props.loadedSong[this.props.selectedTrack].waveform !==
-      prevProps.loadedSong[prevProps.selectedTrack].waveform
-    ) {
-      try {
-        new Function(this.props.loadedSong[this.props.selectedTrack].waveform);
-        if (this.props.loadedSong[this.props.selectedTrack].waveform) {
-          if (this.props.instrumentRef.current) {
-            this.props.instrumentRef.current
-              // @ts-ignore: this is fine
-              .getWrappedInstance()
-              .refreshInstruments();
-          }
-        }
-      } catch (e) {
-        console.log('Invalid wave string.');
+  React.useEffect(() => {
+    try {
+      new Function(songState.loaded[editorState.track].waveform);
+
+      if (songState.loaded[editorState.track].waveform) {
+        instrumentsState.refreshInstruments(songState.loaded);
       }
+    } catch (e) {
+      console.log('Invalid wave string.');
     }
-  }
+  }, [
+    songState.loaded[editorState.track] &&
+      songState.loaded[editorState.track].waveform,
+  ]);
 
-  getWaveform = () => {
-    const { loadedSong, selectedTrack } = this.props;
-
-    const row = loadedSong[selectedTrack];
+  const getWaveform = () => {
+    const row = songState.loaded[editorState.track];
     return row ? row.waveform : '';
   };
 
-  addSinusoid = () => {
-    this.addWaveform('Math.sin(Math.PI*2*f*t)');
+  const addSinusoid = () => {
+    addWaveform('Math.sin(Math.PI*2*f*t)');
   };
 
-  addSawTooth = () => {
-    this.addWaveform('1-((f*t)%1)*2');
+  const addSawTooth = () => {
+    addWaveform('1-((f*t)%1)*2');
   };
 
-  addTriangle = () => {
-    this.addWaveform('Math.abs(((2*f*t)%2-1))*2-1');
+  const addTriangle = () => {
+    addWaveform('Math.abs(((2*f*t)%2-1))*2-1');
   };
 
-  addSquare = () => {
-    this.addWaveform('(f*t)%2 >1?1:-1');
+  const addSquare = () => {
+    addWaveform('(f*t)%2 >1?1:-1');
   };
 
-  addWaveform = (waveform: string) => {
-    const current_waveform = this.getWaveform();
+  const addWaveform = (waveform: string) => {
+    const current_waveform = getWaveform();
 
-    this.props.editSong({
-      waveform: current_waveform + (current_waveform ? '+' : '') + waveform,
-      trackIndex: this.props.selectedTrack,
-    });
+    songState.editWaveform(
+      editorState.track,
+      current_waveform + (current_waveform ? '+' : '') + waveform,
+    );
   };
 
-  renderSlider(id: string, description = '') {
-    const instrument = this.props.loadedSong[this.props.selectedTrack];
-    // @ts-ignore: this is fine
-    const val = parseFloat(instrument[id]);
+  const renderSlider = (
+    id: 'volume' | 'attack' | 'sustain' | 'decay' | 'release',
+    description = '',
+  ) => {
+    const instrument = songState.loaded[editorState.track];
+    const val = instrument ? instrument[id] : 0;
+
     return (
       <div>
         <span style={{ marginRight: '10px' }}>{description}</span>
@@ -130,58 +115,24 @@ export class SoundFactory extends React.Component<SoundFactoryProps> {
         <SlideNumInput id={'slider' + id} value={val} />
       </div>
     );
-  }
+  };
 
-  render() {
-    return (
-      <SoundFactoryContainer>
-        <Input
-          type="text"
-          value={this.getWaveform()}
-          onChange={this.handleChange}
-        />
-        <AddWaveButton
-          type="button"
-          value="Add sinusoid"
-          onClick={this.addSinusoid}
-        />
-        <AddWaveButton
-          type="button"
-          value="Add sawtooth"
-          onClick={this.addSawTooth}
-        />
-        <AddWaveButton
-          type="button"
-          value="Add triangle"
-          onClick={this.addTriangle}
-        />
-        <AddWaveButton
-          type="button"
-          value="Add square"
-          onClick={this.addSquare}
-        />
-        <InstrumentPropertyContainer>
-          {this.renderSlider('volume', 'Vol')}
-          {this.renderSlider('attack', 'Atk')}
-          {this.renderSlider('sustain', 'Sus')}
-          {this.renderSlider('decay', 'Dec')}
-          {this.renderSlider('release', 'Rel')}
-        </InstrumentPropertyContainer>
-      </SoundFactoryContainer>
-    );
-  }
-}
-
-const mapStateToProps = (state: RootState) => ({
-  loadedSong: state.song.loaded,
-  selectedTrack: state.editor.track,
+  return (
+    <SoundFactoryContainer>
+      <Input type="text" value={getWaveform()} onChange={handleChange} />
+      <AddWaveButton type="button" value="Add sinusoid" onClick={addSinusoid} />
+      <AddWaveButton type="button" value="Add sawtooth" onClick={addSawTooth} />
+      <AddWaveButton type="button" value="Add triangle" onClick={addTriangle} />
+      <AddWaveButton type="button" value="Add square" onClick={addSquare} />
+      <InstrumentPropertyContainer>
+        {renderSlider('volume', 'Vol')}
+        {renderSlider('attack', 'Atk')}
+        {renderSlider('sustain', 'Sus')}
+        {renderSlider('decay', 'Dec')}
+        {renderSlider('release', 'Rel')}
+      </InstrumentPropertyContainer>
+    </SoundFactoryContainer>
+  );
 });
 
-const mapDispatchToProps = {
-  editSong,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(SoundFactory);
+export default SoundFactory;

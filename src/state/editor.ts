@@ -1,10 +1,5 @@
-import { createStandardAction, ActionType, getType } from 'typesafe-actions';
-import { Reducer } from 'redux';
-import { DeepReadonly } from 'utility-types';
-import produce from 'immer';
-
+import { observable, action } from 'mobx';
 import { mod } from '../utils/modulo';
-import { timeFromBeginning, Song, Instrument } from '../types/instrument';
 
 interface RowOffset {
   offset: number;
@@ -18,8 +13,6 @@ type ChangeRow = RowOffset | RowValue;
 
 const isRowValue = (payload: ChangeRow): payload is RowValue =>
   (<RowValue>payload).value !== undefined;
-
-export const changeRow = createStandardAction('editor/CHANGE_ROW')<ChangeRow>();
 
 interface TrackOffset {
   offset: number;
@@ -35,99 +28,63 @@ type ChangeTrack = TrackOffset | TrackValue;
 const isTrackValue = (payload: ChangeTrack): payload is TrackValue =>
   (<TrackValue>payload).value !== undefined;
 
-export const changeTrack = createStandardAction('editor/CHANGE_TRACK')<
-  ChangeTrack
->();
+class EditorState {
+  @observable
+  track = 0;
 
-export const changePattern = createStandardAction('editor/CHANGE_PATTERN')<{
-  pattern: number;
-}>();
+  @observable
+  row = 0;
 
-export const setNoteSkip = createStandardAction('editor/SET_NOTE_SKIP')<{
-  value: number;
-}>();
+  @observable
+  pattern = 0;
 
-export const setOctave = createStandardAction('editor/SET_OCTAVE')<{
-  value: number;
-}>();
+  @observable
+  noteSkip = 0;
 
-const actions = {
-  changePattern,
-  changeRow,
-  changeTrack,
-  setNoteSkip,
-  setOctave,
-};
-export type EditorActions = ActionType<typeof actions>;
+  @observable
+  octave = 0;
 
-export type EditorState = DeepReadonly<{
-  track: number;
-  row: number;
-
-  pattern: number;
-
-  noteSkip: number;
-  octave: number;
-}>;
-
-const initialState = {
-  track: 0,
-  row: 0,
-
-  pattern: 0,
-
-  noteSkip: 0,
-  octave: 0,
-};
-
-export const editorReducer: Reducer<EditorState, EditorActions> = (
-  state = initialState,
-  action,
-) =>
-  produce(state, draft => {
-    switch (action.type) {
-      case getType(changePattern):
-        draft.pattern = action.payload.pattern;
-        break;
-
-      case getType(changeRow): {
-        const payload = action.payload;
-
-        if (isRowValue(payload)) {
-          draft.row = payload.value;
-        } else {
-          draft.row = mod(state.row + payload.offset, payload.numRows);
-        }
-        break;
-      }
-
-      case getType(changeTrack): {
-        const payload = action.payload;
-
-        if (isTrackValue(payload)) {
-          draft.track = payload.value;
-        } else {
-          draft.track = mod(state.track + payload.offset, payload.numTracks);
-
-          // // if the current track selection does not contain notes in this pattern, go to the next track that contains notes
-          for (
-            let i = payload.offset > 0 ? 2 : -2;
-            payload.song[draft.track] === undefined;
-            i += payload.offset > 0 ? 1 : -1
-          ) {
-            draft.track = mod(state.track + i, payload.numTracks);
-          }
-        }
-        break;
-      }
-
-      case getType(setNoteSkip):
-        draft.noteSkip = action.payload.value;
-        break;
-
-      case getType(setOctave):
-        draft.octave = action.payload.value;
-
-        break;
+  @action
+  changeRow = (row: ChangeRow) => {
+    if (isRowValue(row)) {
+      this.row = row.value;
+    } else {
+      this.row = mod(this.row + row.offset, row.numRows);
     }
-  });
+  };
+
+  @action
+  changeTrack = (track: ChangeTrack) => {
+    if (isTrackValue(track)) {
+      this.track = track.value;
+    } else {
+      this.track = mod(this.track + track.offset, track.numTracks);
+
+      // // if the current track selection does not contain notes in this pattern, go to the next track that contains notes
+      for (
+        let i = track.offset > 0 ? 2 : -2;
+        track.song[this.track] === undefined;
+        i += track.offset > 0 ? 1 : -1
+      ) {
+        this.track = mod(this.track + i, track.numTracks);
+      }
+    }
+  };
+
+  @action
+  changePattern = (pattern: number) => {
+    this.pattern = pattern;
+  };
+
+  @action
+  setNoteSkip = (value: number) => {
+    this.noteSkip = value;
+  };
+
+  @action
+  setOctave = (value: number) => {
+    this.octave = value;
+  };
+}
+
+export const editorState = new EditorState();

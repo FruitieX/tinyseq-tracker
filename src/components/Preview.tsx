@@ -9,8 +9,8 @@ const Wrapper = styled.div`
   display: flex;
 `;
 
-export class Preview extends React.PureComponent {
-  componentDidMount() {
+export const Preview: React.FunctionComponent = () => {
+  React.useEffect(() => {
     const fragmentShader = require('../fragment.glsl');
     const vertexShader = require('../vertex.glsl');
 
@@ -22,18 +22,17 @@ export class Preview extends React.PureComponent {
 
     // work around strict mode ;)
     Function(src)();
-  }
 
-  componentWillUnmount() {
-    // @ts-ignore: Z is set by the demo
-    cancelAnimationFrame(Z);
-  }
+    // Cleanup
+    return () => {
+      // @ts-ignore: Z is set by the demo
+      cancelAnimationFrame(Z);
+    };
+  });
 
-  render() {
-    return (
-      <Wrapper>
-        <canvas id="W" />
-      </Wrapper>
-    );
-  }
-}
+  return (
+    <Wrapper>
+      <canvas id="W" />
+    </Wrapper>
+  );
+};

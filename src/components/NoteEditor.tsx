@@ -1,20 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DeepReadonly } from 'utility-types';
 import {
-  Song,
   Instrument,
   defaultInstrument,
   timeFromBeginning,
 } from '../types/instrument';
-import { addInstrument, editSong } from '../state/song';
-import { Track } from './Track';
+import Track from './Track';
 import { keyboard2noteMapping } from '../utils/constants';
-import { connect } from 'react-redux';
-import { RootState } from '../state/rootReducer';
-import { changeRow, changeTrack } from '../state/editor';
-import { setTime, PlaybackState } from '../state/player';
 import { colors, baseButton } from '../utils/styles';
+import { observer } from 'mobx-react-lite';
+import { songState } from '../state/song';
+import { editorState } from '../state/editor';
+import { playerState } from '../state/player';
 
 const Wrapper = styled.div`
   grid-area: main-editor;
@@ -38,231 +35,166 @@ const AddInstrumentButton = styled.button`
   ${baseButton};
 `;
 
-interface EditorProps {
-  loadedSong: DeepReadonly<Song>;
+const NoteEditor: React.FunctionComponent = observer(() => {
+  const editorRef = React.useRef<HTMLDivElement>(null);
 
-  addInstrument: typeof addInstrument;
-  editSong: typeof editSong;
-
-  row: number;
-  changeRow: typeof changeRow;
-
-  track: number;
-  changeTrack: typeof changeTrack;
-
-  pattern: number;
-  noteSkip: number;
-  octave: number;
-
-  setTime: typeof setTime;
-  playing: PlaybackState;
-}
-
-class NoteEditor extends React.PureComponent<EditorProps> {
-  editorRef = React.createRef<HTMLDivElement>();
-
-  componentDidMount() {
-    this.editorRef.current!.addEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentWillUnmount() {
-    this.editorRef.current!.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentDidUpdate(prevProps: EditorProps) {
-    if (
-      (prevProps.row !== this.props.row ||
-        prevProps.pattern !== this.props.pattern) &&
-      this.props.playing === 'paused'
-    ) {
-      this.props.setTime(
-        timeFromBeginning(
-          this.props.loadedSong,
-          this.props.track,
-          this.props.pattern,
-          this.props.row,
-        ),
-      );
-    }
-  }
-
-  handleKeyDown = (ev: KeyboardEvent) => {
-    const {
-      row,
-      changeRow,
-
-      track,
-      changeTrack,
-
-      editSong,
-
-      pattern,
-      noteSkip,
-      octave,
-      loadedSong,
-    } = this.props;
-
-    const activeTrack = loadedSong[track];
-    const activeTrackNotes =
-      activeTrack && activeTrack.notes[activeTrack.patterns[pattern] - 1];
-
-    const numRows = activeTrackNotes ? activeTrackNotes.length : 1;
-
-    const numTracks = this.props.loadedSong.length;
-
-    const patternNotes = loadedSong.map(t => t.notes[t.patterns[pattern] - 1]);
-
-    switch (ev.code) {
-      case 'ArrowDown':
-        ev.stopPropagation();
-        changeRow({ offset: 1, numRows });
-        return;
-
-      case 'ArrowUp':
-        ev.stopPropagation();
-        changeRow({ offset: -1, numRows });
-        return;
-
-      case 'ArrowLeft':
-        ev.stopPropagation();
-        return changeTrack({
-          offset: -1,
-          numTracks: numTracks,
-          song: patternNotes,
-        });
-
-      case 'ArrowRight':
-        ev.stopPropagation();
-        return changeTrack({
-          offset: 1,
-          numTracks: numTracks,
-          song: patternNotes,
-        });
-
-      case 'Backspace':
-        ev.stopPropagation();
-
-        editSong({
-          trackIndex: track,
-          rowIndex: row,
-          patternIndex: this.props.loadedSong[track].patterns[pattern] - 1,
-          note: '!',
-        });
-
-        return changeRow({ offset: noteSkip, numRows });
-
-      case 'Delete':
-        ev.stopPropagation();
-
-        editSong({
-          trackIndex: track,
-          rowIndex: row,
-          patternIndex: this.props.loadedSong[track].patterns[pattern] - 1,
-          note: ' ',
-        });
-
-        return changeRow({ offset: noteSkip, numRows });
-
-      // edit notes
-      default:
-        const note = keyboard2noteMapping[ev.code];
-
-        if (note !== undefined) {
-          ev.stopPropagation();
-
-          editSong({
-            trackIndex: track,
-            rowIndex: row,
-            patternIndex: this.props.loadedSong[track].patterns[pattern] - 1,
-            note: String.fromCharCode(35 + note + 12 * octave),
-          });
-
-          return changeRow({ offset: noteSkip, numRows });
-        }
-    }
-  };
-
-  handleAddInstrumentClick = () => {
-    const { addInstrument } = this.props;
-
+  const handleAddInstrumentClick = () => {
     // create new instrument from the default instrument settings
     // TODO: fix the creating of an instrument in a better way
     // var i = <Instrument>{defaultInstrument};
     // make the first note string as long as the the note string of the first instrument
     //  i.notes[0] = Array(this.props.loadedSong[0].notes[0].length + 1).join(" ");
     // and send it off to the addInstrument function
-    addInstrument({ instrument: defaultInstrument });
+    songState.addInstrument(defaultInstrument);
   };
 
-  handleNoteClick = (trackIndex: number, rowIndex: number) => {
-    const { changeRow, changeTrack } = this.props;
-
-    changeTrack({ value: trackIndex });
-    changeRow({ value: rowIndex });
+  const handleNoteClick = (trackIndex: number, rowIndex: number) => {
+    editorState.changeTrack({ value: trackIndex });
+    editorState.changeRow({ value: rowIndex });
   };
 
-  renderTrack = (instrument: Instrument, index: number) => {
-    const {
-      row: selectedRow,
-      track: selectedTrack,
-      pattern: currentPattern,
-    } = this.props;
-
+  const renderTrack = (instrument: Instrument, index: number) => {
     return (
       <Track
         key={index}
         index={index}
         instrument={instrument}
-        currentPattern={currentPattern}
-        selected={selectedTrack === index}
-        onClickNote={this.handleNoteClick}
-        selectedRow={selectedRow}
+        currentPattern={editorState.pattern}
+        selected={editorState.track === index}
+        onClickNote={handleNoteClick}
+        selectedRow={editorState.row}
       />
     );
   };
 
-  render() {
-    const { loadedSong } = this.props;
+  React.useEffect(() => {
+    const handleKeyDown = (ev: KeyboardEvent) => {
+      const activeTrack = songState.loaded[editorState.track];
+      const activeTrackNotes =
+        activeTrack &&
+        activeTrack.notes[activeTrack.patterns[editorState.pattern] - 1];
 
-    return (
-      <Wrapper innerRef={this.editorRef} tabIndex={0}>
-        {loadedSong.map(this.renderTrack as any)}
+      const numRows = activeTrackNotes ? activeTrackNotes.length : 1;
 
-        <AddInstrumentButton
-          type="button"
-          onClick={this.handleAddInstrumentClick}
-        >
-          {`+`}
-        </AddInstrumentButton>
-      </Wrapper>
-    );
-  }
-}
+      const numTracks = songState.loaded.length;
 
-const mapStateToProps = (state: RootState) => ({
-  loadedSong: state.song.loaded,
+      const patternNotes = songState.loaded.map(
+        t => t.notes[t.patterns[editorState.pattern] - 1],
+      );
 
-  row: state.editor.row,
-  track: state.editor.track,
+      switch (ev.code) {
+        case 'ArrowDown':
+          ev.stopPropagation();
+          editorState.changeRow({ offset: 1, numRows });
+          return;
 
-  pattern: state.editor.pattern,
+        case 'ArrowUp':
+          ev.stopPropagation();
+          editorState.changeRow({ offset: -1, numRows });
+          return;
 
-  noteSkip: state.editor.noteSkip,
-  octave: state.editor.octave,
-  playing: state.player.playback,
+        case 'ArrowLeft':
+          ev.stopPropagation();
+          return editorState.changeTrack({
+            offset: -1,
+            numTracks: numTracks,
+            song: patternNotes,
+          });
+
+        case 'ArrowRight':
+          ev.stopPropagation();
+          return editorState.changeTrack({
+            offset: 1,
+            numTracks: numTracks,
+            song: patternNotes,
+          });
+
+        case 'Backspace':
+          ev.stopPropagation();
+
+          songState.editNote(
+            editorState.track,
+            editorState.row,
+            songState.loaded[editorState.track].patterns[editorState.pattern] -
+              1,
+            '!',
+          );
+
+          return editorState.changeRow({
+            offset: editorState.noteSkip,
+            numRows,
+          });
+
+        case 'Delete':
+          ev.stopPropagation();
+
+          songState.editNote(
+            editorState.track,
+            editorState.row,
+            songState.loaded[editorState.track].patterns[editorState.pattern] -
+              1,
+            ' ',
+          );
+
+          return editorState.changeRow({
+            offset: editorState.noteSkip,
+            numRows,
+          });
+
+        // edit notes
+        default:
+          const note = keyboard2noteMapping[ev.code];
+
+          if (note !== undefined) {
+            ev.stopPropagation();
+
+            songState.editNote(
+              editorState.track,
+              editorState.row,
+              songState.loaded[editorState.track].patterns[
+                editorState.pattern
+              ] - 1,
+              String.fromCharCode(35 + note + 12 * editorState.octave),
+            );
+
+            return editorState.changeRow({
+              offset: editorState.noteSkip,
+              numRows,
+            });
+          }
+      }
+    };
+
+    const ref = editorRef.current;
+    if (!ref) return;
+
+    ref.addEventListener('keydown', handleKeyDown);
+
+    return () => ref.removeEventListener('keydown', handleKeyDown);
+  }, [editorRef]);
+
+  React.useEffect(() => {
+    if (playerState.playback === 'paused') {
+      playerState.setTime(
+        timeFromBeginning(
+          songState.loaded,
+          editorState.track,
+          editorState.pattern,
+          editorState.row,
+        ),
+      );
+    }
+  }, [editorState.row, editorState.pattern, playerState.playback]);
+
+  return (
+    <Wrapper ref={editorRef} tabIndex={0}>
+      {songState.loaded.map(renderTrack)}
+
+      <AddInstrumentButton type="button" onClick={handleAddInstrumentClick}>
+        {`+`}
+      </AddInstrumentButton>
+    </Wrapper>
+  );
 });
 
-const mapDispatchToProps = {
-  addInstrument,
-  editSong,
-
-  changeRow,
-  changeTrack,
-
-  setTime,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(NoteEditor);
+export default NoteEditor;

@@ -42,6 +42,12 @@ export interface Instrument {
   release: Release;
 }
 
+export interface InstrumentInstance {
+  ctx: AudioContext;
+  node: AudioWorkletNode;
+  instrument: Instrument;
+}
+
 export const patternLength = (notes: String, secsPerRow: number): number => {
   // console.log(notes, secsPerRow);
   if (notes === undefined) return 0;
@@ -56,6 +62,9 @@ export const timeFromBeginning = (
 ): number => {
   let time = 0;
   let i = song[trackIndex];
+
+  if (!i) return 0;
+
   // add the time from previous patterns
   for (let pi = 0; pi < patternIndex; pi++) {
     let pat = i.patterns[pi];

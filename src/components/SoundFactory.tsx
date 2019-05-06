@@ -8,6 +8,10 @@ import { instrumentsState } from '../state/instruments';
 
 const SoundFactoryContainer = styled.div`
   grid-area: instruments;
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  grid-template-rows: auto;
+  grid-template-areas: 'sound-sliders waveform-editor';
 `;
 
 const Input = styled.input`
@@ -35,7 +39,12 @@ const AddWaveButton = styled.input`
   width: 120px;
 `;
 
-const InstrumentPropertyContainer = styled.div``;
+const InstrumentPropertyContainer = styled.div`
+  grid-area: sound-sliders;
+`;
+const WaveFormEditorContainer = styled.div`
+  grid-area: waveform-editor;
+`;
 
 const Slider = styled.input`
   ${baseSlider}
@@ -132,15 +141,6 @@ export const SoundFactory: React.FunctionComponent = observer(() => {
 
   return (
     <SoundFactoryContainer>
-      <Input
-        type="text"
-        value={getWaveform()}
-        onChange={handleInstrumentWaveformChange}
-      />
-      <AddWaveButton type="button" value="Add sinusoid" onClick={addSinusoid} />
-      <AddWaveButton type="button" value="Add sawtooth" onClick={addSawTooth} />
-      <AddWaveButton type="button" value="Add triangle" onClick={addTriangle} />
-      <AddWaveButton type="button" value="Add square" onClick={addSquare} />
       <InstrumentPropertyContainer>
         {renderSlider('volume', 'Vol')}
         {renderSlider('attack', 'Atk')}
@@ -148,6 +148,29 @@ export const SoundFactory: React.FunctionComponent = observer(() => {
         {renderSlider('decay', 'Dec')}
         {renderSlider('release', 'Rel')}
       </InstrumentPropertyContainer>
+      <WaveFormEditorContainer>
+        <Input
+          type="text"
+          value={getWaveform()}
+          onChange={handleInstrumentWaveformChange}
+        />
+        <AddWaveButton
+          type="button"
+          value="Add sinusoid"
+          onClick={addSinusoid}
+        />
+        <AddWaveButton
+          type="button"
+          value="Add sawtooth"
+          onClick={addSawTooth}
+        />
+        <AddWaveButton
+          type="button"
+          value="Add triangle"
+          onClick={addTriangle}
+        />
+        <AddWaveButton type="button" value="Add square" onClick={addSquare} />
+      </WaveFormEditorContainer>
     </SoundFactoryContainer>
   );
 });

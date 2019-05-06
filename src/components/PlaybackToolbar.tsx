@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import { PlaybackState, playerState } from '../state/player';
 import { editorState } from '../state/editor';
 import { getSongLength, time2instrumentPos } from '../types/instrument';
-import { playNote } from './Instrument';
+import { playNote } from '../utils/playNote';
 import { baseButton } from '../utils/styles';
 import { noteCharToSound } from './Track';
 import { songState } from '../state/song';
 import { observer } from 'mobx-react-lite';
+import { instrumentsState } from '../state/instruments';
 
 const PlaybackToolbar = styled.div`
   grid-area: playback-toolbar;
@@ -117,7 +118,7 @@ export const PlaybackHandler: React.FunctionComponent = observer(() => {
       console.log('playing notes ', ...notes);
 
       notes.forEach((n, i) =>
-        playNote(playerState.instrumentInstances[i], noteCharToSound(n) - 33),
+        playNote(instrumentsState.instances[i], noteCharToSound(n) - 33),
       );
 
       editorState.changeRow({ value: newPos.row });

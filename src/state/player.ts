@@ -12,9 +12,6 @@ export type PlaybackState = 'playing' | 'paused';
 
 class PlayerState {
   @observable
-  instrumentInstances: InstrumentInstance[] = [];
-
-  @observable
   playback: PlaybackState = 'paused';
 
   @observable
@@ -22,11 +19,6 @@ class PlayerState {
 
   @observable
   timeSinceStart = 0;
-
-  @action
-  setInstrumentInstances = (instrumentInstances: InstrumentInstance[]) => {
-    this.instrumentInstances = instrumentInstances;
-  };
 
   @action
   togglePlayback = () => {

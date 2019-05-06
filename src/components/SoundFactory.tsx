@@ -4,6 +4,7 @@ import { songState } from '../state/song';
 import { baseInput, baseButton } from '../utils/styles';
 import { editorState } from '../state/editor';
 import { observer } from 'mobx-react-lite';
+import { instrumentsState } from '../state/instruments';
 
 const SoundFactoryContainer = styled.div`
   grid-area: instruments;
@@ -29,17 +30,7 @@ export const SoundFactory: React.FunctionComponent = observer(() => {
       new Function(songState.loaded[editorState.track].waveform);
 
       if (songState.loaded[editorState.track].waveform) {
-        console.log(
-          'TODO! I have no way of refreshing instruments from here :( move instrument instance stuff into MobX',
-        );
-        /*
-          if (this.props.instrumentRef.current) {
-            this.props.instrumentRef.current
-              // @ts-ignore: this is fine
-              .getWrappedInstance()
-              .refreshInstruments();
-          }
-          */
+        instrumentsState.refreshInstruments(songState.loaded);
       }
     } catch (e) {
       console.log('Invalid wave string.');

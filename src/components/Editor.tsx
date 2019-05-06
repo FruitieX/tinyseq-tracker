@@ -11,7 +11,7 @@ import SoundFactory from './SoundFactory';
 import PlaybackHandler from './PlaybackToolbar';
 
 import PatternWrapper from './PatternWrapper';
-import InstrumentManager, { playNote } from './Instrument';
+import { playNote } from '../utils/playNote';
 import { keyboard2noteMapping } from '../utils/constants';
 import NoteEditor from './NoteEditor';
 import { Preview } from './Preview';
@@ -19,6 +19,7 @@ import { Preview } from './Preview';
 import { range } from 'fp-ts/es6/Array';
 import FileManager from './FileManager';
 import { noteCharToSound } from './Track';
+import { instrumentsState } from '../state/instruments';
 
 const NoteToolbar = styled.div`
   grid-area: note-toolbar;
@@ -76,10 +77,7 @@ export const Editor: React.FunctionComponent = observer(() => {
             console.log('playing notes ', ...notes);
 
             notes.forEach((n, i) =>
-              playNote(
-                playerState.instrumentInstances[i],
-                noteCharToSound(n) - 33,
-              ),
+              playNote(instrumentsState.instances[i], noteCharToSound(n) - 33),
             );
           }
           break;
@@ -135,7 +133,6 @@ export const Editor: React.FunctionComponent = observer(() => {
       <NoteToolbar>{renderToolbar()}</NoteToolbar>
       <PlaybackHandler />
       <SoundFactory />
-      <InstrumentManager />
       <Preview />
       <FileManager />
     </TrackerWrapper>

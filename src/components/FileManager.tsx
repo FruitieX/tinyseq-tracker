@@ -44,7 +44,7 @@ export const FileManager: React.FunctionComponent = observer(() => {
 
     reader.onload = () => {
       if (reader.result) {
-        songState.setSong(parseSong(JSON.parse(reader.result.toString())));
+        songState.setSong(JSON.parse(reader.result.toString()));
       }
     };
 

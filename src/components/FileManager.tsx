@@ -6,25 +6,14 @@ import { baseButton } from '../utils/styles';
 import { observer } from 'mobx-react-lite';
 import { parseSong } from '../types/instrument';
 
-const Wrapper = styled.div`
-  grid-area: file-manager;
-  display: flex;
-`;
-
 const Button = styled.button`
   ${baseButton};
   font-size: 16px;
+  display: list-item;
 `;
 
 const UploadButton = styled.label`
-  ${baseButton};
   font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding-left: 8px;
-  padding-right: 8px;
-  margin-right: 16px;
 `;
 
 // Function to download data to a file
@@ -72,7 +61,7 @@ export const FileManager: React.FunctionComponent = observer(() => {
     );
 
   return (
-    <Wrapper>
+    <React.Fragment>
       <UploadButton htmlFor="load">Load song</UploadButton>
       <input
         id="load"
@@ -81,7 +70,7 @@ export const FileManager: React.FunctionComponent = observer(() => {
         style={{ display: 'none' }}
       />
       <Button onClick={save}>Save song</Button>
-    </Wrapper>
+    </React.Fragment>
   );
 });
 

@@ -134,7 +134,6 @@ export const Editor: React.FunctionComponent = observer(() => {
       <PlaybackHandler />
       <SoundFactory />
       <Preview />
-      <FileManager />
     </TrackerWrapper>
   );
 });

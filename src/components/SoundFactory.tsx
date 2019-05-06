@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { songState } from '../state/song';
-import { baseInput, baseButton } from '../utils/styles';
+import { baseInput, baseButton, baseSlider } from '../utils/styles';
 import { editorState } from '../state/editor';
 import { observer } from 'mobx-react-lite';
 import { instrumentsState } from '../state/instruments';
@@ -28,7 +28,7 @@ const SlideNumInput = styled.input`
     padding-left: 4px;
   }
 `;
-// style={{width: "40px", padding: "0", paddingLeft: "5px", border: "none", height: "initial"}}
+
 const AddWaveButton = styled.input`
   ${baseButton};
   text-align: center;
@@ -38,16 +38,26 @@ const AddWaveButton = styled.input`
 const InstrumentPropertyContainer = styled.div``;
 
 const Slider = styled.input`
-  &::-webkit-slider-thumb {
-    background-color: #f00 !important;
-    background: #f00 !important;
-    color: #f00 !important;
-  }
+  ${baseSlider}
+  width: 50px;
 `;
 
 export const SoundFactory: React.FunctionComponent = observer(() => {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInstrumentWaveformChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     songState.editWaveform(editorState.track, event.target.value);
+  };
+
+  const handleInstrumentPropertyChange = (
+    key: 'volume' | 'attack' | 'sustain' | 'decay' | 'release',
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    songState.editInstrumentProperty(
+      editorState.track,
+      key,
+      parseFloat(event.target.value),
+    );
   };
 
   React.useEffect(() => {
@@ -96,11 +106,11 @@ export const SoundFactory: React.FunctionComponent = observer(() => {
   };
 
   const renderSlider = (
-    id: 'volume' | 'attack' | 'sustain' | 'decay' | 'release',
+    key: 'volume' | 'attack' | 'sustain' | 'decay' | 'release',
     description = '',
   ) => {
     const instrument = songState.loaded[editorState.track];
-    const val = instrument ? instrument[id] : 0;
+    const val = instrument ? instrument[key] : 0;
 
     return (
       <div>
@@ -109,17 +119,22 @@ export const SoundFactory: React.FunctionComponent = observer(() => {
           type="range"
           min="0"
           max="1"
+          step=".01"
           value={val}
-          style={{ width: '50px' }}
+          onChange={e => handleInstrumentPropertyChange(key, e)}
         />
-        <SlideNumInput id={'slider' + id} value={val} />
+        <SlideNumInput id={'slider' + key} value={val.toFixed(2)} />
       </div>
     );
   };
 
   return (
     <SoundFactoryContainer>
-      <Input type="text" value={getWaveform()} onChange={handleChange} />
+      <Input
+        type="text"
+        value={getWaveform()}
+        onChange={handleInstrumentWaveformChange}
+      />
       <AddWaveButton type="button" value="Add sinusoid" onClick={addSinusoid} />
       <AddWaveButton type="button" value="Add sawtooth" onClick={addSawTooth} />
       <AddWaveButton type="button" value="Add triangle" onClick={addTriangle} />

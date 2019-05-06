@@ -92,6 +92,10 @@ export const getRowFromPattern = (
   return Math.floor((time / (notes.length * secsPerRow * 1000)) * notes.length);
 };
 
+export interface InstrumentPropertyKeys {
+  key: 'volume' | 'attack' | 'sustain' | 'decay' | 'release';
+}
+
 export interface InstrumentPos {
   track: number;
   pattern: number;

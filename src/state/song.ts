@@ -49,6 +49,15 @@ class SongState {
   };
 
   @action
+  editInstrumentProperty = (
+    trackIndex: number,
+    key: 'volume' | 'attack' | 'sustain' | 'decay' | 'release',
+    value: number,
+  ) => {
+    this.loaded[trackIndex][key] = value;
+  };
+
+  @action
   setSong = (song: Song) => {
     console.log(song);
     this.loaded = song;

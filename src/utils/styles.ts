@@ -42,6 +42,28 @@ export const baseButton = css`
   }
 `;
 
+export const baseSlider = css`
+  -webkit-appearance: none;
+  &:focus {
+    outline: none;
+  }
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    background: #222;
+    height: 8px;
+    width: 8px;
+    cursor: pointer;
+    &: hover {
+      background: #555;
+    }
+  }
+  &::-webkit-slider-runnable-track {
+    height: 8px;
+    cursor: pointer;
+    background: #aaa;
+  }
+`;
+
 export interface BaseInputProps {
   active?: boolean;
 }

@@ -3,7 +3,8 @@ import styled from 'styled-components';
 
 import { songState } from '../state/song';
 import { baseButton } from '../utils/styles';
-import { observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
+import { parseSong } from '../types/instrument';
 
 const Wrapper = styled.div`
   grid-area: file-manager;
@@ -48,15 +49,13 @@ function download(data: string, filename: string, type: string) {
   }
 }
 
-// TODO: refactor as FunctionComponent and move to using mobx-react-lite
-@observer
-export class FileManager extends React.Component {
-  load = (e: React.ChangeEvent<HTMLInputElement>) => {
+export const FileManager: React.FunctionComponent = observer(() => {
+  const load = (e: React.ChangeEvent<HTMLInputElement>) => {
     var reader = new FileReader();
 
     reader.onload = () => {
       if (reader.result) {
-        songState.setSong(JSON.parse(reader.result.toString()));
+        songState.setSong(parseSong(JSON.parse(reader.result.toString())));
       }
     };
 
@@ -65,27 +64,25 @@ export class FileManager extends React.Component {
     }
   };
 
-  save = () =>
+  const save = () =>
     download(
       JSON.stringify(songState.loaded, null, 2),
       'song.json',
       'application/json',
     );
 
-  render() {
-    return (
-      <Wrapper>
-        <UploadButton htmlFor="load">Load song</UploadButton>
-        <input
-          id="load"
-          type="file"
-          onChange={this.load}
-          style={{ display: 'none' }}
-        />
-        <Button onClick={this.save}>Save song</Button>
-      </Wrapper>
-    );
-  }
-}
+  return (
+    <Wrapper>
+      <UploadButton htmlFor="load">Load song</UploadButton>
+      <input
+        id="load"
+        type="file"
+        onChange={load}
+        style={{ display: 'none' }}
+      />
+      <Button onClick={save}>Save song</Button>
+    </Wrapper>
+  );
+});
 
 export default FileManager;

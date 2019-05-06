@@ -92,45 +92,49 @@ const notesStringToArr = (notes: string): string[] => {
   return notes.split('').map(noteCharToString);
 };
 
-export class Track extends React.Component<Props> {
-  getPattern = (instrument: Instrument): string[] => {
-    if (instrument.patterns[this.props.currentPattern] > 0) {
+export const Track: React.FunctionComponent<Props> = ({
+  instrument,
+  index,
+  currentPattern,
+  onClickNote,
+  selected,
+  selectedRow,
+}) => {
+  const getPattern = (instrument: Instrument): string[] => {
+    if (instrument.patterns[currentPattern] > 0) {
       return notesStringToArr(
-        instrument.notes[instrument.patterns[this.props.currentPattern] - 1],
+        instrument.notes[instrument.patterns[currentPattern] - 1],
       );
     }
     return [' '];
   };
 
-  handleClick = (rowIndex: number) => () => {
-    this.props.onClickNote(this.props.index, rowIndex);
+  const handleClick = (rowIndex: number) => () => {
+    onClickNote(index, rowIndex);
   };
 
-  renderRow = (note: string, index: number) => {
+  const renderRow = (note: string, index: number) => {
     return (
       <NoteContainer
         key={index}
-        selected={this.props.selected && this.props.selectedRow === index}
-        rowActive={this.props.selectedRow === index}
-        onClick={this.handleClick(index)}
+        selected={selected && selectedRow === index}
+        rowActive={selectedRow === index}
+        onClick={handleClick(index)}
       >
         {note}
       </NoteContainer>
     );
   };
 
-  render() {
-    const { instrument } = this.props;
-    return (
-      <TrackContainer>
-        <div className="track-name">
-          <h3>Track</h3>
-          <p>{this.props.index}</p>
-        </div>
-        {this.getPattern(instrument).map(this.renderRow)}
-      </TrackContainer>
-    );
-  }
-}
+  return (
+    <TrackContainer>
+      <div className="track-name">
+        <h3>Track</h3>
+        <p>{index}</p>
+      </div>
+      {getPattern(instrument).map(renderRow)}
+    </TrackContainer>
+  );
+};
 
 export default Track;

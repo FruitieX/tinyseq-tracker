@@ -38,94 +38,6 @@ const AddInstrumentButton = styled.button`
 const NoteEditor: React.FunctionComponent = observer(() => {
   const editorRef = React.useRef<HTMLDivElement>(null);
 
-  const handleKeyDown = (ev: KeyboardEvent) => {
-    const activeTrack = songState.loaded[editorState.track];
-    const activeTrackNotes =
-      activeTrack &&
-      activeTrack.notes[activeTrack.patterns[editorState.pattern] - 1];
-
-    const numRows = activeTrackNotes ? activeTrackNotes.length : 1;
-
-    const numTracks = songState.loaded.length;
-
-    const patternNotes = songState.loaded.map(
-      t => t.notes[t.patterns[editorState.pattern] - 1],
-    );
-
-    switch (ev.code) {
-      case 'ArrowDown':
-        ev.stopPropagation();
-        editorState.changeRow({ offset: 1, numRows });
-        return;
-
-      case 'ArrowUp':
-        ev.stopPropagation();
-        editorState.changeRow({ offset: -1, numRows });
-        return;
-
-      case 'ArrowLeft':
-        ev.stopPropagation();
-        return editorState.changeTrack({
-          offset: -1,
-          numTracks: numTracks,
-          song: patternNotes,
-        });
-
-      case 'ArrowRight':
-        ev.stopPropagation();
-        return editorState.changeTrack({
-          offset: 1,
-          numTracks: numTracks,
-          song: patternNotes,
-        });
-
-      case 'Backspace':
-        ev.stopPropagation();
-
-        songState.editNote(
-          editorState.track,
-          editorState.row,
-          songState.loaded[editorState.track].patterns[editorState.pattern] - 1,
-          '!',
-        );
-
-        return editorState.changeRow({ offset: editorState.noteSkip, numRows });
-
-      case 'Delete':
-        ev.stopPropagation();
-
-        songState.editNote(
-          editorState.track,
-          editorState.row,
-          songState.loaded[editorState.track].patterns[editorState.pattern] - 1,
-          ' ',
-        );
-
-        return editorState.changeRow({ offset: editorState.noteSkip, numRows });
-
-      // edit notes
-      default:
-        const note = keyboard2noteMapping[ev.code];
-
-        if (note !== undefined) {
-          ev.stopPropagation();
-
-          songState.editNote(
-            editorState.track,
-            editorState.row,
-            songState.loaded[editorState.track].patterns[editorState.pattern] -
-              1,
-            String.fromCharCode(35 + note + 12 * editorState.octave),
-          );
-
-          return editorState.changeRow({
-            offset: editorState.noteSkip,
-            numRows,
-          });
-        }
-    }
-  };
-
   const handleAddInstrumentClick = () => {
     // create new instrument from the default instrument settings
     // TODO: fix the creating of an instrument in a better way
@@ -156,13 +68,110 @@ const NoteEditor: React.FunctionComponent = observer(() => {
   };
 
   React.useEffect(() => {
+    const handleKeyDown = (ev: KeyboardEvent) => {
+      const activeTrack = songState.loaded[editorState.track];
+      const activeTrackNotes =
+        activeTrack &&
+        activeTrack.notes[activeTrack.patterns[editorState.pattern] - 1];
+
+      const numRows = activeTrackNotes ? activeTrackNotes.length : 1;
+
+      const numTracks = songState.loaded.length;
+
+      const patternNotes = songState.loaded.map(
+        t => t.notes[t.patterns[editorState.pattern] - 1],
+      );
+
+      switch (ev.code) {
+        case 'ArrowDown':
+          ev.stopPropagation();
+          editorState.changeRow({ offset: 1, numRows });
+          return;
+
+        case 'ArrowUp':
+          ev.stopPropagation();
+          editorState.changeRow({ offset: -1, numRows });
+          return;
+
+        case 'ArrowLeft':
+          ev.stopPropagation();
+          return editorState.changeTrack({
+            offset: -1,
+            numTracks: numTracks,
+            song: patternNotes,
+          });
+
+        case 'ArrowRight':
+          ev.stopPropagation();
+          return editorState.changeTrack({
+            offset: 1,
+            numTracks: numTracks,
+            song: patternNotes,
+          });
+
+        case 'Backspace':
+          ev.stopPropagation();
+
+          songState.editNote(
+            editorState.track,
+            editorState.row,
+            songState.loaded[editorState.track].patterns[editorState.pattern] -
+              1,
+            '!',
+          );
+
+          return editorState.changeRow({
+            offset: editorState.noteSkip,
+            numRows,
+          });
+
+        case 'Delete':
+          ev.stopPropagation();
+
+          songState.editNote(
+            editorState.track,
+            editorState.row,
+            songState.loaded[editorState.track].patterns[editorState.pattern] -
+              1,
+            ' ',
+          );
+
+          return editorState.changeRow({
+            offset: editorState.noteSkip,
+            numRows,
+          });
+
+        // edit notes
+        default:
+          const note = keyboard2noteMapping[ev.code];
+
+          if (note !== undefined) {
+            ev.stopPropagation();
+
+            songState.editNote(
+              editorState.track,
+              editorState.row,
+              songState.loaded[editorState.track].patterns[
+                editorState.pattern
+              ] - 1,
+              String.fromCharCode(35 + note + 12 * editorState.octave),
+            );
+
+            return editorState.changeRow({
+              offset: editorState.noteSkip,
+              numRows,
+            });
+          }
+      }
+    };
+
     const ref = editorRef.current;
     if (!ref) return;
 
     ref.addEventListener('keydown', handleKeyDown);
 
     return () => ref.removeEventListener('keydown', handleKeyDown);
-  }, [editorRef, handleKeyDown]);
+  }, [editorRef]);
 
   React.useEffect(() => {
     if (playerState.playback === 'paused') {
@@ -178,7 +187,7 @@ const NoteEditor: React.FunctionComponent = observer(() => {
   }, [editorState.row, editorState.pattern, playerState.playback]);
 
   return (
-    <Wrapper innerRef={editorRef} tabIndex={0}>
+    <Wrapper ref={editorRef} tabIndex={0}>
       {songState.loaded.map(renderTrack)}
 
       <AddInstrumentButton type="button" onClick={handleAddInstrumentClick}>

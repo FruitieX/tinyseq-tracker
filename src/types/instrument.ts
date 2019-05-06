@@ -62,6 +62,9 @@ export const timeFromBeginning = (
 ): number => {
   let time = 0;
   let i = song[trackIndex];
+
+  if (!i) return 0;
+
   // add the time from previous patterns
   for (let pi = 0; pi < patternIndex; pi++) {
     let pat = i.patterns[pi];

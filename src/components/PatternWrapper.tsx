@@ -10,7 +10,7 @@ import {
   borderStyle,
   border,
 } from '../utils/styles';
-import { observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
 import { songState } from '../state/song';
 import { editorState } from '../state/editor';
 
@@ -70,10 +70,12 @@ const AddRemovePatternButton = styled.button`
   flex: 1;
 `;
 
-// TODO: refactor as FunctionComponent and move to using mobx-react-lite
-@observer
-class PatternWrapper extends React.Component {
-  handlePatternChange = (trackId: number, patternId: number, value: number) => {
+const PatternWrapper: React.FunctionComponent = observer(() => {
+  const handlePatternChange = (
+    trackId: number,
+    patternId: number,
+    value: number,
+  ) => {
     if (value < 0) return;
 
     if (value < songState.loaded[trackId].patterns.length) {
@@ -97,17 +99,17 @@ class PatternWrapper extends React.Component {
     }
   };
 
-  handlePatternInputChange = (trackId: number, patternId: number) => (
+  const handlePatternInputChange = (trackId: number, patternId: number) => (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = parseInt(event.target.value);
 
     if (isNaN(value)) return;
 
-    this.handlePatternChange(trackId, patternId, value);
+    handlePatternChange(trackId, patternId, value);
   };
 
-  handleAddPatternButton = (trackId: number) => (
+  const handleAddPatternButton = (trackId: number) => (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     if (event.shiftKey) {
@@ -129,27 +131,30 @@ class PatternWrapper extends React.Component {
     }
   };
 
-  handleRemovePattern = (trackId: number) => () => {
+  const handleRemovePattern = (trackId: number) => () => {
     songState.removePattern(trackId);
   };
 
-  handleClick = (patternIndex: number) => {
+  const handleClick = (patternIndex: number) => {
     // set current pattern to the pattern index that that was clicked on
     editorState.changePattern(patternIndex);
   };
 
-  incrementPattern = (
+  const incrementPattern = (
     trackId: number,
     patternIndex: number,
     offset: number,
   ) => () =>
-    this.handlePatternChange(
+    handlePatternChange(
       trackId,
       patternIndex,
       songState.loaded[trackId].patterns[patternIndex] + offset,
     );
 
-  renderTrack = (instrument: DeepReadonly<Instrument>, trackId: number) => {
+  const renderTrack = (
+    instrument: DeepReadonly<Instrument>,
+    trackId: number,
+  ) => {
     return instrument.patterns.map((pattern, patternIndex) => (
       <CellWrapper
         key={trackId.toString() + patternIndex.toString()}
@@ -157,22 +162,25 @@ class PatternWrapper extends React.Component {
         y={patternIndex}
       >
         <SelectPatternButton
-          onClick={this.incrementPattern(trackId, patternIndex, -1)}
+          onClick={incrementPattern(trackId, patternIndex, -1)}
         >{`-`}</SelectPatternButton>
         <SelectPatternInput
           active={editorState.pattern === patternIndex}
           value={pattern}
-          onChange={this.handlePatternInputChange(trackId, patternIndex)}
-          onClick={() => this.handleClick(patternIndex)}
+          onChange={handlePatternInputChange(trackId, patternIndex)}
+          onClick={() => handleClick(patternIndex)}
         />
         <SelectPatternButton
-          onClick={this.incrementPattern(trackId, patternIndex, +1)}
+          onClick={incrementPattern(trackId, patternIndex, +1)}
         >{`+`}</SelectPatternButton>
       </CellWrapper>
     ));
   };
 
-  renderButtons = (instrument: DeepReadonly<Instrument>, trackId: number) => {
+  const renderButtons = (
+    instrument: DeepReadonly<Instrument>,
+    trackId: number,
+  ) => {
     return (
       <CellWrapper
         x={trackId}
@@ -181,13 +189,13 @@ class PatternWrapper extends React.Component {
       >
         <AddRemovePatternButton
           type="button"
-          onClick={this.handleRemovePattern(trackId)}
+          onClick={handleRemovePattern(trackId)}
         >
           {`-`}
         </AddRemovePatternButton>
         <AddRemovePatternButton
           type="button"
-          onClick={this.handleAddPatternButton(trackId)}
+          onClick={handleAddPatternButton(trackId)}
         >
           {`+`}
         </AddRemovePatternButton>
@@ -195,16 +203,14 @@ class PatternWrapper extends React.Component {
     );
   };
 
-  render() {
-    return (
-      <PatternArea>
-        <PatternContainer>
-          {songState.loaded.map(this.renderTrack)}
-          {songState.loaded.map(this.renderButtons)}
-        </PatternContainer>
-      </PatternArea>
-    );
-  }
-}
+  return (
+    <PatternArea>
+      <PatternContainer>
+        {songState.loaded.map(renderTrack)}
+        {songState.loaded.map(renderButtons)}
+      </PatternContainer>
+    </PatternArea>
+  );
+});
 
 export default PatternWrapper;

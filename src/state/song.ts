@@ -50,6 +50,7 @@ class SongState {
 
   @action
   setSong = (song: Song) => {
+    console.log(song);
     this.loaded = song;
   };
 }

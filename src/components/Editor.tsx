@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
 import { playerState } from '../state/player';
 import { editorState } from '../state/editor';
 import { songState } from '../state/song';
@@ -47,68 +47,62 @@ const GraphWrapper = styled.div`
   grid-area: header;
 `;
 
-// TODO: refactor as FunctionComponent and move to using mobx-react-lite
-@observer
-export class Editor extends React.Component {
-  timerHandle?: number;
+export const Editor: React.FunctionComponent = observer(() => {
+  React.useEffect(() => {
+    const handleKeyDown = (ev: KeyboardEvent) => {
+      switch (ev.code) {
+        case 'Space': // Spacebar
+          playerState.togglePlayback();
+          break;
 
-  handleKeyDown = (ev: KeyboardEvent) => {
-    switch (ev.code) {
-      case 'Space': // Spacebar
-        playerState.togglePlayback();
-        break;
+        // keyboard piano
+        default:
+          const note = keyboard2noteMapping[ev.code];
 
-      // keyboard piano
-      default:
-        const note = keyboard2noteMapping[ev.code];
+          if (note !== undefined) {
+            const notes = range(0, songState.loaded.length - 1).map(
+              (_, index) => {
+                if (index === editorState.track) {
+                  return String.fromCharCode(
+                    35 + note + 12 * editorState.octave,
+                  );
+                }
 
-        if (note !== undefined) {
-          const notes = range(0, songState.loaded.length - 1).map(
-            (_, index) => {
-              if (index === editorState.track) {
-                return String.fromCharCode(35 + note + 12 * editorState.octave);
-              }
+                return ' ';
+              },
+            );
 
-              return ' ';
-            },
-          );
+            // Play notes instantly
+            console.log('playing notes ', ...notes);
 
-          // Play notes instantly
-          console.log('playing notes ', ...notes);
+            notes.forEach((n, i) =>
+              playNote(
+                playerState.instrumentInstances[i],
+                noteCharToSound(n) - 33,
+              ),
+            );
+          }
+          break;
+      }
+    };
 
-          notes.forEach((n, i) =>
-            playNote(
-              playerState.instrumentInstances[i],
-              noteCharToSound(n) - 33,
-            ),
-          );
-        }
-        break;
-    }
-  };
-
-  componentDidMount() {
-    // console.log(this.props);
-    // const { setSong } = this.props;
-    // console.log('there', setSong);
     songState.setSong(parseSong(song as TSSong));
-    document.addEventListener('keydown', this.handleKeyDown);
-  }
+    document.addEventListener('keydown', handleKeyDown);
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-    window.clearInterval(this.timerHandle);
-  }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
-  handleOctaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOctaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     editorState.setOctave(Number(e.target.value));
   };
 
-  handleNoteSkipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNoteSkipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     editorState.setNoteSkip(Number(e.target.value));
   };
 
-  renderToolbar = () => {
+  const renderToolbar = () => {
     return (
       <div>
         <span>Oct</span>
@@ -116,7 +110,7 @@ export class Editor extends React.Component {
           id="octave"
           type="number"
           value={editorState.octave}
-          onChange={this.handleOctaveChange}
+          onChange={handleOctaveChange}
           min="0"
           max="9"
         />
@@ -125,7 +119,7 @@ export class Editor extends React.Component {
           id="noteSkip"
           type="number"
           value={editorState.noteSkip}
-          onChange={this.handleNoteSkipChange}
+          onChange={handleNoteSkipChange}
           min="1"
           max="32"
         />
@@ -133,21 +127,19 @@ export class Editor extends React.Component {
     );
   };
 
-  render() {
-    return (
-      <TrackerWrapper>
-        <PatternWrapper />
-        <GraphWrapper />
-        <NoteEditor />
-        <NoteToolbar>{this.renderToolbar()}</NoteToolbar>
-        <PlaybackHandler />
-        <SoundFactory />
-        <InstrumentManager />
-        <Preview />
-        <FileManager />
-      </TrackerWrapper>
-    );
-  }
-}
+  return (
+    <TrackerWrapper>
+      <PatternWrapper />
+      <GraphWrapper />
+      <NoteEditor />
+      <NoteToolbar>{renderToolbar()}</NoteToolbar>
+      <PlaybackHandler />
+      <SoundFactory />
+      <InstrumentManager />
+      <Preview />
+      <FileManager />
+    </TrackerWrapper>
+  );
+});
 
 export default Editor;

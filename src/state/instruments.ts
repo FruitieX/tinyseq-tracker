@@ -47,7 +47,7 @@ export const initInstrument = async (
       const lowpass = ctx.createBiquadFilter();
 
       // low pass filter to hopefully fix weird aliasing crap?
-      lowpass.frequency.setValueAtTime(10000, 0);
+      lowpass.frequency.setValueAtTime(20000, 0);
 
       const node = new AudioWorkletNode(
         ctx,
